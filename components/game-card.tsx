@@ -130,13 +130,13 @@ export function GameCard({
   
   return (
     <>
-      <Card className="hover:shadow-lg transition-shadow">
+      <Card className="hover-lift group">
         <CardHeader>
           <div className="flex items-start justify-between">
             <div className="flex-1">
-              <CardTitle>{title}</CardTitle>
-              <CardDescription>
-                Created by {creator_name} on {formattedDate}
+              <CardTitle className="text-white group-hover:text-purple-300 transition-colors">{title}</CardTitle>
+              <CardDescription className="text-gray-400">
+                Created by <span className="text-purple-400">{creator_name}</span> on {formattedDate}
               </CardDescription>
             </div>
             {isOwner && (
@@ -171,7 +171,7 @@ export function GameCard({
         </CardHeader>
         <CardContent>
           <Link href={`/games/${id}`}>
-            <Button className="w-full">Play Game</Button>
+            <Button className="w-full shadow-lg shadow-purple-500/30">Play Game</Button>
           </Link>
         </CardContent>
       </Card>

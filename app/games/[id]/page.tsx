@@ -190,26 +190,34 @@ export default function GamePage() {
 
   if (isLoading) {
     return (
-      <div className="container mx-auto px-4 py-8">
-        <p>Loading game...</p>
+      <div className="container mx-auto px-4 py-8 flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500 mb-4"></div>
+          <p className="text-gray-400">Loading game...</p>
+        </div>
       </div>
     );
   }
 
   if (!game) {
     return (
-      <div className="container mx-auto px-4 py-8">
-        <p>Game not found</p>
+      <div className="container mx-auto px-4 py-8 flex items-center justify-center min-h-screen">
+        <div className="glass-card p-12 rounded-2xl text-center">
+          <p className="text-xl text-gray-300">Game not found</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-6xl">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2">{game.title}</h1>
-        <p className="text-muted-foreground">Created by {game.creator_name}</p>
-      </div>
+    <div className="relative min-h-screen">
+      <div className="absolute inset-0 bg-gradient-to-br from-purple-900/10 via-transparent to-blue-900/10 pointer-events-none" />
+      
+      <div className="container mx-auto px-4 py-8 max-w-6xl relative">
+        <div className="mb-8">
+          <h1 className="text-4xl font-bold mb-2 gradient-text">{game.title}</h1>
+          <p className="text-gray-400">Created by <span className="text-purple-400">{game.creator_name}</span></p>
+        </div>
 
       {!hasSubmitted ? (
         <div className="space-y-8">
@@ -224,13 +232,13 @@ export default function GamePage() {
               {game.scenarios.map((scenario, index) => {
                 const submission = submissions.find((s) => s.scenarioId === scenario.id);
                 return (
-                  <div key={scenario.id} className="space-y-3 p-4 border rounded-lg">
+                  <div key={scenario.id} className="space-y-3 p-4 glass-card rounded-xl">
                     <div className="flex items-start justify-between">
                       <div>
-                        <h3 className="font-semibold text-lg">
+                        <h3 className="font-semibold text-lg text-white">
                           Scenario {index + 1}: {scenario.title}
                         </h3>
-                        <p className="text-sm text-muted-foreground mt-1">
+                        <p className="text-sm text-gray-400 mt-1">
                           {scenario.description}
                         </p>
                       </div>
@@ -279,9 +287,9 @@ export default function GamePage() {
                 {evaluations.map((evaluation, index) => {
                   const scenario = game.scenarios.find((s) => s.id === evaluation.scenarioId);
                   return (
-                    <div key={evaluation.scenarioId} className="space-y-3 p-4 border rounded-lg">
+                    <div key={evaluation.scenarioId} className="space-y-3 p-4 glass-card rounded-xl">
                       <div className="flex items-center justify-between">
-                        <h3 className="font-semibold">
+                        <h3 className="font-semibold text-white">
                           Scenario {index + 1}: {scenario?.title}
                         </h3>
                         <Badge variant={evaluation.score >= 7 ? "default" : "secondary"}>
@@ -290,22 +298,22 @@ export default function GamePage() {
                       </div>
                       
                       <div>
-                        <h4 className="text-sm font-medium mb-1">Your Prompt:</h4>
-                        <p className="text-sm bg-muted p-3 rounded font-mono">
+                        <h4 className="text-sm font-medium mb-1 text-gray-300">Your Prompt:</h4>
+                        <p className="text-sm bg-gray-900/50 text-gray-300 p-3 rounded-lg font-mono border border-purple-500/20">
                           {evaluation.prompt}
                         </p>
                       </div>
                       
                       <div>
-                        <h4 className="text-sm font-medium mb-1">Feedback & Suggestions:</h4>
-                        <p className="text-sm text-muted-foreground">
+                        <h4 className="text-sm font-medium mb-1 text-gray-300">Feedback & Suggestions:</h4>
+                        <p className="text-sm text-gray-400">
                           {evaluation.feedback}
                         </p>
                       </div>
                       
                       <div>
-                        <h4 className="text-sm font-medium mb-1">Refined Prompt Example:</h4>
-                        <p className="text-sm bg-green-50 dark:bg-green-950 p-3 rounded font-mono border border-green-200 dark:border-green-800">
+                        <h4 className="text-sm font-medium mb-1 text-gray-300">Refined Prompt Example:</h4>
+                        <p className="text-sm bg-green-900/30 text-green-300 p-3 rounded-lg font-mono border border-green-500/30">
                           {evaluation.refinedPrompt}
                         </p>
                       </div>
@@ -326,7 +334,7 @@ export default function GamePage() {
               </CardHeader>
               <CardContent>
                 {leaderboard.length === 0 ? (
-                  <p className="text-center text-muted-foreground py-8">
+                  <p className="text-center text-gray-400 py-8">
                     No completed submissions yet
                   </p>
                 ) : (
@@ -334,17 +342,17 @@ export default function GamePage() {
                     {leaderboard.map((entry, index) => (
                       <div
                         key={entry.token}
-                        className="flex items-center justify-between p-3 border rounded-lg"
+                        className="flex items-center justify-between p-4 glass-card rounded-xl hover-lift"
                       >
                         <div className="flex items-center gap-3">
-                          <Badge variant={index < 3 ? "default" : "secondary"}>
+                          <div className={`w-10 h-10 rounded-lg flex items-center justify-center font-bold ${index < 3 ? 'bg-gradient-to-br from-purple-500 to-blue-500 text-white' : 'bg-gray-800 text-gray-300'}`}>
                             #{index + 1}
-                          </Badge>
-                          <span className="font-medium">{entry.name}</span>
+                          </div>
+                          <span className="font-medium text-white">{entry.name}</span>
                         </div>
                         <div className="text-right">
-                          <p className="font-semibold">{entry.total_score}/30</p>
-                          <p className="text-xs text-muted-foreground">
+                          <p className="font-semibold text-lg gradient-text">{entry.total_score}/30</p>
+                          <p className="text-xs text-gray-400">
                             {new Date(entry.last_submission).toLocaleString()}
                           </p>
                         </div>
@@ -368,6 +376,7 @@ export default function GamePage() {
           onContinue={handleNameConfirmed}
         />
       )}
+      </div>
     </div>
   );
 }

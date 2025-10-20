@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Slider } from "@/components/ui/slider";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -38,7 +37,6 @@ const STRATEGIES = [
 export default function PlaygroundPage() {
   const [systemPrompt, setSystemPrompt] = useState("");
   const [selectedModel, setSelectedModel] = useState("gpt-4o");
-  const [temperature, setTemperature] = useState([0.7]);
   const [selectedStrategy, setSelectedStrategy] = useState("none");
   const [currentInput, setCurrentInput] = useState("");
   const [isRefining, setIsRefining] = useState(false);
@@ -228,7 +226,6 @@ export default function PlaygroundPage() {
         body: JSON.stringify({
           messages: [...messages, userMessage].map(m => ({ role: m.role, content: m.content })),
           model: selectedModel,
-          temperature: temperature[0],
           systemPrompt: useRefinedSystem && refinedSystemPrompt.trim() ? refinedSystemPrompt : systemPrompt,
         }),
       });
@@ -267,8 +264,8 @@ export default function PlaygroundPage() {
   return (
     <div className="flex h-[calc(100vh-73px)]">
       {/* Left Panel - Configuration */}
-      <div className="w-96 border-r p-6 overflow-y-auto">
-        <h2 className="text-2xl font-bold mb-6">Configuration</h2>
+      <div className="w-96 glass border-r border-purple-500/20 p-6 overflow-y-auto">
+        <h2 className="text-2xl font-bold mb-6 gradient-text">Configuration</h2>
 
         <div className="space-y-6">
           {/* System Prompt */}
@@ -298,27 +295,6 @@ export default function PlaygroundPage() {
                 ))}
               </SelectContent>
             </Select>
-          </div>
-
-          {/* Temperature */}
-          <div className="space-y-2">
-            <Label htmlFor="temperature">
-              Temperature: {temperature[0].toFixed(2)}
-            </Label>
-            <Slider
-              id="temperature"
-              min={0}
-              max={2}
-              step={0.1}
-              value={temperature}
-              onValueChange={setTemperature}
-              disabled={selectedModel.startsWith("o1") || selectedModel.startsWith("o3")}
-            />
-            {(selectedModel.startsWith("o1") || selectedModel.startsWith("o3")) && (
-              <p className="text-xs text-muted-foreground">
-                Temperature is not supported for reasoning models
-              </p>
-            )}
           </div>
 
           {/* Strategy Selection */}
@@ -408,11 +384,11 @@ export default function PlaygroundPage() {
           )}
 
           {/* Info Card */}
-          <Card>
+          <Card className="bg-gradient-to-br from-purple-900/20 to-blue-900/20">
             <CardHeader>
-              <CardTitle className="text-sm">How it works</CardTitle>
+              <CardTitle className="text-sm text-purple-300">How it works</CardTitle>
             </CardHeader>
-            <CardContent className="text-xs text-muted-foreground space-y-2">
+            <CardContent className="text-xs text-gray-400 space-y-2">
               <p>1. Configure your model and settings</p>
               <p>2. Select a prompting strategy (optional)</p>
               <p>3. Type your message and click &quot;Apply Strategy&quot; to refine</p>
@@ -424,11 +400,11 @@ export default function PlaygroundPage() {
       </div>
 
       {/* Right Panel - Chat Interface */}
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col bg-gradient-to-br from-transparent via-transparent to-purple-900/5">
         {/* Chat Header with Clear Button */}
         {messages.length > 0 && (
-          <div className="flex justify-between items-center p-4 border-b">
-            <h3 className="text-sm font-medium">Chat</h3>
+          <div className="flex justify-between items-center p-4 border-b border-purple-500/20 glass">
+            <h3 className="text-sm font-medium text-purple-300">Chat</h3>
             <Button
               variant="outline"
               size="sm"
@@ -445,9 +421,14 @@ export default function PlaygroundPage() {
         <div className="flex-1 overflow-y-auto p-6 space-y-4">
           {messages.length === 0 ? (
             <div className="h-full flex items-center justify-center">
-              <div className="text-center space-y-2">
-                <h3 className="text-xl font-semibold">Start a conversation</h3>
-                <p className="text-muted-foreground">
+              <div className="text-center space-y-4 glass-card p-12 rounded-2xl">
+                <div className="w-16 h-16 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center mx-auto">
+                  <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+                  </svg>
+                </div>
+                <h3 className="text-xl font-semibold text-white">Start a conversation</h3>
+                <p className="text-gray-400">
                   Type a message below to begin chatting with the AI
                 </p>
               </div>
@@ -459,12 +440,12 @@ export default function PlaygroundPage() {
                 className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}
               >
                 <div className={`max-w-[80%] ${message.role === "user" ? "" : ""}`}>
-                  <div className="text-xs font-semibold mb-1 opacity-70">
+                  <div className={`text-xs font-semibold mb-1 ${message.role === "user" ? "text-purple-400 text-right" : "text-blue-400"}`}>
                     {message.role === "user" ? "You" : selectedModel}
                   </div>
                   <Response
                     isAnimating={isLoading && message.id === messages[messages.length - 1]?.id}
-                    className="bg-muted rounded-lg p-4"
+                    className={`${message.role === "user" ? "bg-gradient-to-br from-purple-600/30 to-blue-600/30 border border-purple-500/30" : "glass-card"} rounded-xl p-4 text-gray-200`}
                   >
                     {message.content}
                   </Response>
@@ -474,7 +455,7 @@ export default function PlaygroundPage() {
           )}
           {isLoading && messages[messages.length - 1]?.role !== "assistant" && (
             <div className="flex justify-start">
-              <div className="max-w-[80%] rounded-lg p-4 bg-muted">
+              <div className="max-w-[80%] rounded-xl p-4 glass-card">
                 <Simmer />
               </div>
             </div>
@@ -482,7 +463,7 @@ export default function PlaygroundPage() {
         </div>
 
         {/* Input Area */}
-        <div className="border-t p-4">
+        <div className="border-t border-purple-500/20 p-4 glass">
           <form onSubmit={handleSubmit} className="flex gap-2">
             <Input
               value={input}

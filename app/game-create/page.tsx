@@ -71,8 +71,12 @@ export default function GameCreatePage() {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-4xl">
-      <h1 className="text-3xl font-bold mb-8">Create New Game</h1>
+    <div className="relative min-h-screen">
+      <div className="absolute inset-0 bg-gradient-to-br from-purple-900/10 via-transparent to-blue-900/10 pointer-events-none" />
+      
+      <div className="container mx-auto px-4 py-8 max-w-4xl relative">
+        <h1 className="text-3xl font-bold mb-2 gradient-text">Create New Game</h1>
+        <p className="text-gray-400 mb-8">Design scenarios to challenge prompt engineering skills</p>
       
       <form onSubmit={handleSubmit} className="space-y-8">
         <div className="space-y-2">
@@ -89,8 +93,8 @@ export default function GameCreatePage() {
         </div>
         
         <div className="space-y-6">
-          <h2 className="text-xl font-semibold">Scenarios</h2>
-          <p className="text-sm text-muted-foreground">
+          <h2 className="text-xl font-semibold text-white">Scenarios</h2>
+          <p className="text-sm text-gray-400">
             Create 3 scenarios that participants will write prompts for. Each scenario should describe 
             a situation where a well-crafted prompt would be needed.
           </p>
@@ -120,6 +124,7 @@ export default function GameCreatePage() {
           </Button>
         </div>
       </form>
+      </div>
     </div>
   );
 }

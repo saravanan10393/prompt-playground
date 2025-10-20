@@ -13,12 +13,12 @@ interface ScenarioFormProps {
 
 export function ScenarioForm({ index, title, description, onChange }: ScenarioFormProps) {
   return (
-    <div className="space-y-4 p-4 border rounded-lg">
-      <h3 className="font-semibold text-lg">Scenario {index + 1}</h3>
+    <div className="space-y-4 p-6 glass-card rounded-xl">
+      <h3 className="font-semibold text-lg text-white">Scenario {index + 1}</h3>
       
       <div className="space-y-2">
         <Label htmlFor={`scenario-title-${index}`}>
-          Title <span className="text-destructive">*</span>
+          Title <span className="text-red-400">*</span>
         </Label>
         <Input
           id={`scenario-title-${index}`}
@@ -30,7 +30,7 @@ export function ScenarioForm({ index, title, description, onChange }: ScenarioFo
       
       <div className="space-y-2">
         <Label htmlFor={`scenario-description-${index}`}>
-          Description <span className="text-muted-foreground">(optional)</span>
+          Description <span className="text-gray-500">(optional)</span>
         </Label>
         <Textarea
           id={`scenario-description-${index}`}

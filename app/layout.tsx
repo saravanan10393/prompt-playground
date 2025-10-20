@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import Link from "next/link";
 import "./globals.css";
 import { AuthProvider } from "@/components/auth-provider";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -25,27 +26,31 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" className="light">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+        <SpeedInsights/>
         <AuthProvider>
           <div className="min-h-screen flex flex-col">
-            <header className="border-b">
+            <header className="glass sticky top-0 z-50 border-b border-purple-500/20">
               <nav className="container mx-auto px-4 py-4">
                 <div className="flex items-center justify-between">
-                  <Link href="/" className="text-xl font-bold">
+                  <Link href="/" className="text-xl font-bold gradient-text hover:scale-105 transition-transform">
                     Prompt Playground
                   </Link>
                   <div className="flex gap-6">
-                    <Link href="/" className="hover:underline">
+                    <Link href="/" className="transition-smooth hover:text-purple-400 relative group">
                       Home
+                      <span className="absolute inset-x-0 -bottom-1 h-0.5 bg-gradient-to-r from-purple-500 to-blue-500 scale-x-0 group-hover:scale-x-100 transition-transform origin-left"></span>
                     </Link>
-                    <Link href="/games" className="hover:underline">
+                    <Link href="/games" className="transition-smooth hover:text-purple-400 relative group">
                       Games
+                      <span className="absolute inset-x-0 -bottom-1 h-0.5 bg-gradient-to-r from-purple-500 to-blue-500 scale-x-0 group-hover:scale-x-100 transition-transform origin-left"></span>
                     </Link>
-                    <Link href="/playground" className="hover:underline">
+                    <Link href="/playground" className="transition-smooth hover:text-purple-400 relative group">
                       Playground
+                      <span className="absolute inset-x-0 -bottom-1 h-0.5 bg-gradient-to-r from-purple-500 to-blue-500 scale-x-0 group-hover:scale-x-100 transition-transform origin-left"></span>
                     </Link>
                   </div>
                 </div>
