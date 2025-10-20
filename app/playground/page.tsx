@@ -415,7 +415,7 @@ export default function PlaygroundPage() {
             <CardContent className="text-xs text-muted-foreground space-y-2">
               <p>1. Configure your model and settings</p>
               <p>2. Select a prompting strategy (optional)</p>
-              <p>3. Type your message and click "Apply Strategy" to refine</p>
+              <p>3. Type your message and click &quot;Apply Strategy&quot; to refine</p>
               <p>4. Review the refined prompt and use it or edit further</p>
               <p>5. Send your message to chat with the AI</p>
             </CardContent>

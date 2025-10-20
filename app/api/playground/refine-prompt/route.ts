@@ -1,9 +1,5 @@
 import { NextResponse } from "next/server";
-import OpenAI from "openai";
-
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+import { getOpenAIClient } from "@/lib/openai";
 
 const STRATEGY_PROMPTS = {
   "zero-shot": `You are a prompt engineering expert. Transform the user's prompt into an effective zero-shot prompt.
@@ -239,6 +235,7 @@ export async function POST(request: Request) {
       ? `Original system prompt: ${prompt}\n\nPlease refine this system prompt according to the ${strategy} strategy while preserving the core role and intent.`
       : `Original prompt: ${prompt}\n\nPlease refine this prompt according to the ${strategy} strategy while preserving the user's core intent.`;
     
+    const openai = getOpenAIClient();
     const response = await openai.chat.completions.create({
       model: "gpt-4o",
       messages: [

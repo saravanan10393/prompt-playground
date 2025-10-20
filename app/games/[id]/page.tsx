@@ -111,7 +111,7 @@ export default function GamePage() {
         setHasSubmitted(true);
         
         // Reconstruct evaluations from submissions
-        const evals = data.userSubmissions.map((sub: any) => ({
+        const evals = data.userSubmissions.map((sub: { scenario_id: number; prompt: string; score: number; feedback: string }) => ({
           scenarioId: sub.scenario_id,
           prompt: sub.prompt,
           score: sub.score,
@@ -272,7 +272,7 @@ export default function GamePage() {
               <CardHeader>
                 <CardTitle>Your Score: {totalScore}/30</CardTitle>
                 <CardDescription>
-                  Here's how your prompts performed
+                  Here&apos;s how your prompts performed
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">

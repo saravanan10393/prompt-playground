@@ -1,9 +1,10 @@
 import { createClient } from "@libsql/client";
 
 // Create Turso client
+// Use a placeholder URL during build time if not provided
 export const turso = createClient({
-  url: process.env.TURSO_DATABASE_URL!,
-  authToken: process.env.TURSO_AUTH_TOKEN!,
+  url: process.env.TURSO_DATABASE_URL || "file:local.db",
+  authToken: process.env.TURSO_AUTH_TOKEN,
 });
 
 // Initialize database schema
@@ -88,7 +89,9 @@ export async function initializeDatabase() {
 }
 
 // Initialize database on module load
-initializeDatabase().catch(console.error);
+await initializeDatabase().catch(console.error).then(() => {
+  console.log("Database initialized successfully");
+});
 
 // Database query functions
 export const queries = {
@@ -252,7 +255,7 @@ export const queries = {
 };
 
 // Transaction helper for batch operations
-export async function executeTransaction(operations: Array<() => Promise<any>>) {
+export async function executeTransaction(operations: Array<() => Promise<unknown>>) {
   try {
     const results = [];
     for (const operation of operations) {

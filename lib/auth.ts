@@ -43,7 +43,7 @@ export async function getOrCreateUser(token: string, name?: string): Promise<Use
     const existingUser = await queries.getUserByToken(token);
     
     if (existingUser) {
-      return existingUser as User;
+      return existingUser as unknown as User;
     }
     
     // Create new user if not exists
@@ -52,7 +52,7 @@ export async function getOrCreateUser(token: string, name?: string): Promise<Use
     
     // Fetch the newly created user
     const newUser = await queries.getUserByToken(token);
-    return newUser as User || null;
+    return newUser as unknown as User || null;
   } catch (error) {
     console.error("Error in getOrCreateUser:", error);
     return null;

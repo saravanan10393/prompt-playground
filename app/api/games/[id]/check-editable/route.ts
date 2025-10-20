@@ -39,7 +39,7 @@ export async function GET(
     
     // Check if game has submissions
     const submissionsResult = await queries.hasGameSubmissions(gameId);
-    const hasSubmissions = submissionsResult > 0;
+    const hasSubmissions = Number(submissionsResult) > 0;
     
     return NextResponse.json({
       editable: true,

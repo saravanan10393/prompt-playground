@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { queries, db } from "@/lib/db";
+import { queries } from "@/lib/db";
 import { getUserFromRequest } from "@/lib/auth";
 
 // GET all games
@@ -50,7 +50,7 @@ export async function POST(request: Request) {
     
     // Create game and scenarios in a transaction
     const gameResult = await queries.createGame(user.id, title);
-    const gameId = gameResult.lastInsertRowid;
+    const gameId = Number(gameResult.lastInsertRowid);
     
     // Create scenarios
     for (const [index, scenario] of scenarios.entries()) {

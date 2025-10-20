@@ -1,11 +1,7 @@
 import { NextResponse } from "next/server";
-import { queries, db } from "@/lib/db";
+import { queries } from "@/lib/db";
 import { getUserFromRequest } from "@/lib/auth";
-import OpenAI from "openai";
-
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+import { getOpenAIClient } from "@/lib/openai";
 
 interface SubmissionData {
   scenarioId: number;
@@ -54,6 +50,7 @@ ${userPrompt}
 
 Please evaluate this prompt and provide a score (1-10) and detailed feedback.`;
 
+    const openai = getOpenAIClient();
     const response = await openai.chat.completions.create({
       model: "gpt-4o",
       messages: [
@@ -113,7 +110,7 @@ export async function POST(
     
     // Check if user has already submitted for this game
     const existingSubmissions = await queries.getUserSubmissionExists(gameId, user.id);
-    if (existingSubmissions > 0) {
+    if (Number(existingSubmissions) > 0) {
       return NextResponse.json(
         { error: "You have already submitted prompts for this game" },
         { status: 400 }
@@ -139,7 +136,7 @@ export async function POST(
       );
     }
     
-    const scenarios = await queries.getScenariosByGameId(gameId) as Array<{
+    const scenarios = await queries.getScenariosByGameId(gameId) as unknown as Array<{
       id: number;
       title: string;
       description: string;
