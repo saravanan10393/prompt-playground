@@ -1,0 +1,221 @@
+import { NextResponse } from "next/server";
+import { queries, db } from "@/lib/db";
+import { getUserFromRequest } from "@/lib/auth";
+import OpenAI from "openai";
+
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+});
+
+interface SubmissionData {
+  scenarioId: number;
+  prompt: string;
+}
+
+interface EvaluationResult {
+  scenarioId: number;
+  prompt: string;
+  score: number;
+  feedback: string;
+  refinedPrompt: string;
+}
+
+async function evaluatePrompt(
+  scenarioTitle: string,
+  scenarioDescription: string,
+  userPrompt: string
+): Promise<{ score: number; feedback: string; refinedPrompt: string }> {
+  try {
+    const systemPrompt = `You are an expert prompt engineering evaluator. Your task is to evaluate how well a user's prompt addresses a given scenario.
+
+Evaluate the prompt based on:
+1. Clarity and specificity
+2. Relevance to the scenario
+3. Likelihood of producing good results from an LLM
+4. Proper instructions and structure
+
+Additionally, provide a "refinedPrompt" field with an improved version of the user's prompt that demonstrates best practices for the given scenario.
+
+Provide your response in the following JSON format:
+{
+  "score": <number between 1-10>,
+  "feedback": "<detailed actionable suggestions to improve the prompt>",
+  "refinedPrompt": "<an improved version of the user's prompt that demonstrates best practices>"
+}
+
+Be constructive and specific in your feedback. Focus on what could be improved. The refined prompt should be a complete, ready-to-use example that shows how to write an effective prompt for this scenario.`;
+
+    const userMessage = `Scenario Title: ${scenarioTitle}
+
+Scenario Description: ${scenarioDescription}
+
+User's Prompt to Evaluate:
+${userPrompt}
+
+Please evaluate this prompt and provide a score (1-10) and detailed feedback.`;
+
+    const response = await openai.chat.completions.create({
+      model: "gpt-4o",
+      messages: [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: userMessage },
+      ],
+      response_format: { type: "json_object" },
+      temperature: 0.7,
+    });
+
+    const content = response.choices[0].message.content;
+    if (!content) {
+      throw new Error("No response from OpenAI");
+    }
+
+    const result = JSON.parse(content);
+    
+    return {
+      score: Math.max(1, Math.min(10, parseInt(result.score))),
+      feedback: result.feedback || "No feedback provided",
+      refinedPrompt: result.refinedPrompt || "No refined prompt provided",
+    };
+  } catch (error) {
+    console.error("Error evaluating prompt:", error);
+    // Return a default response on error
+    return {
+      score: 5,
+      feedback: "Error evaluating prompt. Please try again.",
+      refinedPrompt: "Unable to generate refined prompt due to error.",
+    };
+  }
+}
+
+export async function POST(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params;
+    const gameId = parseInt(id);
+    
+    if (isNaN(gameId)) {
+      return NextResponse.json(
+        { error: "Invalid game ID" },
+        { status: 400 }
+      );
+    }
+    
+    const user = await getUserFromRequest(request);
+    
+    if (!user) {
+      return NextResponse.json(
+        { error: "Unauthorized" },
+        { status: 401 }
+      );
+    }
+    
+    // Check if user has already submitted for this game
+    const existingSubmissions = await queries.getUserSubmissionExists(gameId, user.id);
+    if (existingSubmissions > 0) {
+      return NextResponse.json(
+        { error: "You have already submitted prompts for this game" },
+        { status: 400 }
+      );
+    }
+    
+    const body = await request.json();
+    const { submissions } = body as { submissions: SubmissionData[] };
+    
+    if (!submissions || !Array.isArray(submissions) || submissions.length !== 3) {
+      return NextResponse.json(
+        { error: "Invalid request. Must submit 3 prompts." },
+        { status: 400 }
+      );
+    }
+    
+    // Get game and scenarios
+    const game = await queries.getGameById(gameId);
+    if (!game) {
+      return NextResponse.json(
+        { error: "Game not found" },
+        { status: 404 }
+      );
+    }
+    
+    const scenarios = await queries.getScenariosByGameId(gameId) as Array<{
+      id: number;
+      title: string;
+      description: string;
+      order_index: number;
+    }>;
+    
+    if (scenarios.length !== 3) {
+      return NextResponse.json(
+        { error: "Invalid game configuration" },
+        { status: 500 }
+      );
+    }
+    
+    // Validate that all scenario IDs match
+    const scenarioIds = scenarios.map(s => s.id).sort();
+    const submissionIds = submissions.map(s => s.scenarioId).sort();
+    
+    if (JSON.stringify(scenarioIds) !== JSON.stringify(submissionIds)) {
+      return NextResponse.json(
+        { error: "Invalid scenario IDs in submission" },
+        { status: 400 }
+      );
+    }
+    
+    // Evaluate all prompts
+    const evaluations: EvaluationResult[] = [];
+    
+    for (const submission of submissions) {
+      const scenario = scenarios.find(s => s.id === submission.scenarioId);
+      if (!scenario) continue;
+      
+      const evaluation = await evaluatePrompt(
+        scenario.title,
+        scenario.description,
+        submission.prompt
+      );
+      
+      evaluations.push({
+        scenarioId: submission.scenarioId,
+        prompt: submission.prompt,
+        score: evaluation.score,
+        feedback: evaluation.feedback,
+        refinedPrompt: evaluation.refinedPrompt,
+      });
+    }
+    
+    // Save all submissions
+    for (const evaluation of evaluations) {
+      await queries.createSubmission(
+        gameId,
+        user.id,
+        evaluation.scenarioId,
+        evaluation.prompt,
+        evaluation.score,
+        evaluation.feedback,
+        evaluation.refinedPrompt
+      );
+    }
+    
+    // Calculate total score
+    const totalScore = evaluations.reduce((sum, e) => sum + e.score, 0);
+    
+    // Get updated leaderboard
+    const leaderboard = await queries.getLeaderboard(gameId);
+    
+    return NextResponse.json({
+      evaluations,
+      totalScore,
+      leaderboard,
+    });
+  } catch (error) {
+    console.error("Error submitting prompts:", error);
+    return NextResponse.json(
+      { error: "Failed to submit prompts" },
+      { status: 500 }
+    );
+  }
+}
+

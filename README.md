@@ -1,36 +1,162 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Prompt Playground
+
+Master prompt engineering through competitive games and hands-on experimentation with multiple GPT models and proven prompting strategies.
+
+## Features
+
+### 🎮 Competitive Games
+- Create and join prompt engineering challenges
+- Write prompts for 3 scenarios per game
+- Get AI-powered evaluation and scoring (1-10 per scenario)
+- Receive detailed feedback and improvement suggestions
+- Compete on real-time leaderboards
+
+### 🛝 Playground
+- Chat with multiple GPT models (GPT-4o, O1, O3, and mini variants)
+- Configure system prompts and temperature
+- Apply prompting strategies:
+  - **Zero-shot**: Direct, clear instructions
+  - **Few-shot**: Learn from examples
+  - **Chain-of-Thought**: Step-by-step reasoning
+  - **ReAct**: Reasoning + Action framework
+- See refined prompts before sending
+- Real-time streaming responses
+
+## Tech Stack
+
+- **Framework**: Next.js 15 with App Router
+- **Runtime**: Bun.js
+- **Database**: SQLite (Bun native)
+- **AI SDK**: Vercel AI SDK 5
+- **LLM Provider**: OpenAI
+- **UI Components**: shadcn/ui + AI Elements
+- **Styling**: Tailwind CSS
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
 
+- [Bun](https://bun.sh/) installed
+- OpenAI API key ([Get one here](https://platform.openai.com/api-keys))
+
+### Installation
+
+1. Clone the repository:
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
+git clone <your-repo-url>
+cd prompt-playground
+```
+
+2. Install dependencies:
+```bash
+bun install
+```
+
+3. Create `.env.local` file in the root directory:
+```bash
+OPENAI_API_KEY=sk-your-api-key-here
+```
+
+4. Run the development server:
+```bash
 bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+5. Open [http://localhost:3000](http://localhost:3000) in your browser
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Project Structure
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```
+prompt-playground/
+├── app/
+│   ├── api/              # API routes
+│   │   ├── auth/         # User authentication
+│   │   ├── games/        # Game CRUD operations
+│   │   └── playground/   # Chat & prompt refinement
+│   ├── games/            # Game pages
+│   ├── game-create/      # Create new game
+│   ├── playground/       # AI playground
+│   └── page.tsx          # Landing page
+├── components/           # React components
+│   ├── ui/              # shadcn components
+│   └── ai-elements/     # AI Elements components
+├── lib/
+│   ├── db.ts            # SQLite database setup
+│   ├── auth.ts          # User authentication
+│   └── storage.ts       # Local storage utilities
+└── prompt-playground.db # SQLite database (auto-created)
+```
 
-## Learn More
+## How It Works
 
-To learn more about Next.js, take a look at the following resources:
+### Game Flow
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1. **Create Game**: A user creates a game with 3 scenarios
+2. **Join & Write**: Other users write prompts for each scenario
+3. **Submit All**: User submits all 3 prompts at once
+4. **Evaluation**: AI evaluates each prompt and assigns scores
+5. **Results**: View scores, feedback, and leaderboard
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Playground Flow
 
-## Deploy on Vercel
+1. **Configure**: Set system prompt, model, temperature, and strategy
+2. **Refine** (Optional): Apply a prompting strategy to transform your prompt
+3. **Review**: See the refined prompt with explanations
+4. **Chat**: Send messages and get streaming responses
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Database Schema
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- **users**: User tokens and names
+- **games**: Game metadata
+- **scenarios**: 3 scenarios per game
+- **submissions**: User prompts with scores and feedback
+
+## API Routes
+
+### Authentication
+- `POST /api/auth` - Create/verify user session
+- `GET /api/auth` - Get current user
+
+### Games
+- `GET /api/games` - List all games
+- `POST /api/games` - Create new game
+- `GET /api/games/[id]` - Get game details
+- `POST /api/games/[id]/submit` - Submit prompts (batch)
+- `GET /api/games/[id]/results` - Get results & leaderboard
+
+### Playground
+- `POST /api/playground/chat` - Streaming chat
+- `POST /api/playground/refine-prompt` - Apply strategy to prompt
+
+## Development
+
+### Run linter:
+```bash
+bun run lint
+```
+
+### Build for production:
+```bash
+bun run build
+```
+
+### Start production server:
+```bash
+bun start
+```
+
+## Workshop Showcase Ready
+
+This application demonstrates:
+- Real-time AI evaluation and feedback
+- Multiple GPT model integration
+- Prompting strategy transformation
+- Competitive gaming mechanics
+- Modern Next.js patterns
+- SQLite database with Bun
+- Streaming AI responses
+- Component-based architecture
+
+## License
+
+MIT
