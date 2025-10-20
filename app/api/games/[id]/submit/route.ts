@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { queries } from "@/lib/db";
 import { getUserFromRequest } from "@/lib/auth";
 import { getOpenAIClient } from "@/lib/openai";
+import { logger } from "@/lib/logger";
 
 interface SubmissionData {
   scenarioId: number;
@@ -88,8 +89,11 @@ export async function POST(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const startTime = Date.now();
+  const { id } = await params;
+  logger.apiRequest("POST", `/api/games/${id}/submit`);
+  
   try {
-    const { id } = await params;
     const gameId = parseInt(id);
     
     if (isNaN(gameId)) {
@@ -202,13 +206,20 @@ export async function POST(
     // Get updated leaderboard
     const leaderboard = await queries.getLeaderboard(gameId);
     
+    logger.apiResponse("POST", `/api/games/${id}/submit`, 200, Date.now() - startTime, { 
+      gameId, 
+      userId: user.id, 
+      totalScore,
+      submissionCount: evaluations.length 
+    });
+    
     return NextResponse.json({
       evaluations,
       totalScore,
       leaderboard,
     });
   } catch (error) {
-    console.error("Error submitting prompts:", error);
+    logger.apiError("POST", `/api/games/${id}/submit`, error);
     return NextResponse.json(
       { error: "Failed to submit prompts" },
       { status: 500 }

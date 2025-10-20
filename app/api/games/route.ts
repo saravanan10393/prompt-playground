@@ -1,14 +1,19 @@
 import { NextResponse } from "next/server";
 import { queries } from "@/lib/db";
 import { getUserFromRequest } from "@/lib/auth";
+import { logger } from "@/lib/logger";
 
 // GET all games
 export async function GET() {
+  const startTime = Date.now();
+  logger.apiRequest("GET", "/api/games");
+  
   try {
     const games = await queries.getAllGames();
+    logger.apiResponse("GET", "/api/games", 200, Date.now() - startTime, { count: games.length });
     return NextResponse.json({ games });
   } catch (error) {
-    console.error("Error fetching games:", error);
+    logger.apiError("GET", "/api/games", error);
     return NextResponse.json(
       { error: "Failed to fetch games" },
       { status: 500 }
@@ -18,10 +23,14 @@ export async function GET() {
 
 // POST create new game
 export async function POST(request: Request) {
+  const startTime = Date.now();
+  logger.apiRequest("POST", "/api/games");
+  
   try {
     const user = await getUserFromRequest(request);
     
     if (!user) {
+      logger.warn("Unauthorized game creation attempt");
       return NextResponse.json(
         { error: "Unauthorized" },
         { status: 401 }
@@ -30,6 +39,8 @@ export async function POST(request: Request) {
     
     const body = await request.json();
     const { title, scenarios } = body;
+    
+    logger.debug("Creating game", { userId: user.id, title });
     
     if (!title || !scenarios || !Array.isArray(scenarios) || scenarios.length !== 3) {
       return NextResponse.json(
@@ -66,6 +77,8 @@ export async function POST(request: Request) {
     const game = await queries.getGameById(gameId);
     const gameScenarios = await queries.getScenariosByGameId(gameId);
     
+    logger.apiResponse("POST", "/api/games", 200, Date.now() - startTime, { gameId, scenarioCount: scenarios.length });
+    
     return NextResponse.json({
       game: {
         ...game,
@@ -73,7 +86,7 @@ export async function POST(request: Request) {
       },
     });
   } catch (error) {
-    console.error("Error creating game:", error);
+    logger.apiError("POST", "/api/games", error);
     return NextResponse.json(
       { error: "Failed to create game" },
       { status: 500 }

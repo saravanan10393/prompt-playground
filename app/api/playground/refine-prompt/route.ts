@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getOpenAIClient } from "@/lib/openai";
+import { logger } from "@/lib/logger";
 
 const STRATEGY_PROMPTS = {
   "zero-shot": `You are a prompt engineering expert. Transform the user's prompt into an effective zero-shot prompt.
@@ -209,9 +210,14 @@ Return your response in JSON format:
 };
 
 export async function POST(request: Request) {
+  const startTime = Date.now();
+  logger.apiRequest("POST", "/api/playground/refine-prompt");
+  
   try {
     const body = await request.json();
     const { prompt, strategy, isSystemPrompt = false } = body;
+    
+    logger.debug("Refine prompt request", { strategy, isSystemPrompt, promptLength: prompt?.length });
     
     if (!prompt || typeof prompt !== "string") {
       return NextResponse.json(
@@ -253,6 +259,12 @@ export async function POST(request: Request) {
     
     const result = JSON.parse(content);
     
+    logger.apiResponse("POST", "/api/playground/refine-prompt", 200, Date.now() - startTime, { 
+      strategy, 
+      isSystemPrompt,
+      refinedLength: result.refined_prompt?.length 
+    });
+    
     return NextResponse.json({
       original: prompt,
       refined: result.refined_prompt,
@@ -261,7 +273,7 @@ export async function POST(request: Request) {
       isSystemPrompt,
     });
   } catch (error) {
-    console.error("Error refining prompt:", error);
+    logger.apiError("POST", "/api/playground/refine-prompt", error);
     return NextResponse.json(
       { error: "Failed to refine prompt" },
       { status: 500 }

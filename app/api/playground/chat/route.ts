@@ -1,5 +1,6 @@
 import { streamText } from "ai";
 import { openai } from "@ai-sdk/openai";
+import { logger } from "@/lib/logger";
 
 export const maxDuration = 30;
 
@@ -12,9 +13,14 @@ const VALID_MODELS = [
 ] as const;
 
 export async function POST(request: Request) {
+  const startTime = Date.now();
+  logger.apiRequest("POST", "/api/playground/chat");
+  
   try {
     const body = await request.json();
     const { messages, model, temperature, systemPrompt } = body;
+    
+    logger.debug("Chat request", { model, temperature, messageCount: messages?.length });
     
     if (!messages || !Array.isArray(messages)) {
       return new Response("Invalid messages", { status: 400 });
@@ -57,9 +63,11 @@ export async function POST(request: Request) {
       temperature: isReasoningModel ? undefined : clampedTemp, // Reasoning models don't support temperature
     });
     
+    logger.info("Chat stream initiated", { model: selectedModel, duration: Date.now() - startTime });
+    
     return result.toTextStreamResponse();
   } catch (error) {
-    console.error("Chat error:", error);
+    logger.apiError("POST", "/api/playground/chat", error);
     return new Response("Internal server error", { status: 500 });
   }
 }

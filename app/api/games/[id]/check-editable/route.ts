@@ -1,13 +1,17 @@
 import { NextResponse } from "next/server";
 import { queries } from "@/lib/db";
 import { getUserFromRequest } from "@/lib/auth";
+import { logger } from "@/lib/logger";
 
 export async function GET(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const startTime = Date.now();
+  const { id } = await params;
+  logger.apiRequest("GET", `/api/games/${id}/check-editable`);
+  
   try {
-    const { id } = await params;
     const gameId = parseInt(id);
     
     if (isNaN(gameId)) {
@@ -41,6 +45,12 @@ export async function GET(
     const submissionsResult = await queries.hasGameSubmissions(gameId);
     const hasSubmissions = Number(submissionsResult) > 0;
     
+    logger.apiResponse("GET", `/api/games/${id}/check-editable`, 200, Date.now() - startTime, { 
+      gameId, 
+      editable: true, 
+      hasSubmissions 
+    });
+    
     return NextResponse.json({
       editable: true,
       hasSubmissions,
@@ -49,7 +59,7 @@ export async function GET(
         : "Game can be edited safely",
     });
   } catch (error) {
-    console.error("Error checking edit permissions:", error);
+    logger.apiError("GET", `/api/games/${id}/check-editable`, error);
     return NextResponse.json(
       { error: "Failed to check edit permissions" },
       { status: 500 }

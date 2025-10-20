@@ -1,10 +1,15 @@
 import { NextResponse } from "next/server";
 import { generateUserToken, getOrCreateUser } from "@/lib/auth";
+import { logger } from "@/lib/logger";
 
 export async function POST(request: Request) {
+  const startTime = Date.now();
+  logger.apiRequest("POST", "/api/auth");
+  
   try {
     const body = await request.json();
     const { token, name } = body;
+    logger.debug("Auth POST request", { hasToken: !!token, hasName: !!name });
     
     let userToken = token;
     
@@ -17,11 +22,14 @@ export async function POST(request: Request) {
     const user = await getOrCreateUser(userToken, name);
     
     if (!user) {
+      logger.error("Failed to create user", new Error("User creation failed"));
       return NextResponse.json(
         { error: "Failed to create user" },
         { status: 500 }
       );
     }
+    
+    logger.apiResponse("POST", "/api/auth", 200, Date.now() - startTime, { userId: user.id });
     
     // Return user data with token
     return NextResponse.json({
@@ -29,7 +37,7 @@ export async function POST(request: Request) {
       token: userToken,
     });
   } catch (error) {
-    console.error("Auth error:", error);
+    logger.apiError("POST", "/api/auth", error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }
@@ -38,6 +46,9 @@ export async function POST(request: Request) {
 }
 
 export async function GET(request: Request) {
+  const startTime = Date.now();
+  logger.apiRequest("GET", "/api/auth");
+  
   try {
     const cookieHeader = request.headers.get("cookie");
     
@@ -68,15 +79,17 @@ export async function GET(request: Request) {
     const user = await getOrCreateUser(userToken);
     
     if (!user) {
+      logger.warn("User not found", { token: userToken?.substring(0, 8) });
       return NextResponse.json(
         { error: "User not found" },
         { status: 404 }
       );
     }
     
+    logger.apiResponse("GET", "/api/auth", 200, Date.now() - startTime, { userId: user.id });
     return NextResponse.json({ user });
   } catch (error) {
-    console.error("Auth check error:", error);
+    logger.apiError("GET", "/api/auth", error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }
@@ -85,6 +98,9 @@ export async function GET(request: Request) {
 }
 
 export async function PATCH(request: Request) {
+  const startTime = Date.now();
+  logger.apiRequest("PATCH", "/api/auth");
+  
   try {
     const cookieHeader = request.headers.get("cookie");
     
@@ -138,9 +154,10 @@ export async function PATCH(request: Request) {
     // Fetch updated user
     const updatedUser = await queries.getUserByToken(userToken);
     
+    logger.apiResponse("PATCH", "/api/auth", 200, Date.now() - startTime, { userId: user.id, newName: name });
     return NextResponse.json({ user: updatedUser });
   } catch (error) {
-    console.error("Update name error:", error);
+    logger.apiError("PATCH", "/api/auth", error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

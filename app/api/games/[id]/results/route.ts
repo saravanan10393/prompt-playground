@@ -1,13 +1,17 @@
 import { NextResponse } from "next/server";
 import { queries } from "@/lib/db";
 import { getUserFromRequest } from "@/lib/auth";
+import { logger } from "@/lib/logger";
 
 export async function GET(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const startTime = Date.now();
+  const { id } = await params;
+  logger.apiRequest("GET", `/api/games/${id}/results`);
+  
   try {
-    const { id } = await params;
     const gameId = parseInt(id);
     
     if (isNaN(gameId)) {
@@ -28,12 +32,18 @@ export async function GET(
       userSubmissions = await queries.getSubmissionsByGameAndUser(gameId, user.id);
     }
     
+    logger.apiResponse("GET", `/api/games/${id}/results`, 200, Date.now() - startTime, { 
+      gameId, 
+      leaderboardCount: leaderboard.length,
+      hasUserSubmissions: !!userSubmissions 
+    });
+    
     return NextResponse.json({
       leaderboard,
       userSubmissions,
     });
   } catch (error) {
-    console.error("Error fetching results:", error);
+    logger.apiError("GET", `/api/games/${id}/results`, error);
     return NextResponse.json(
       { error: "Failed to fetch results" },
       { status: 500 }

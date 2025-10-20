@@ -1,13 +1,17 @@
 import { NextResponse } from "next/server";
 import { queries } from "@/lib/db";
 import { getUserFromRequest } from "@/lib/auth";
+import { logger } from "@/lib/logger";
 
 export async function GET(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const startTime = Date.now();
+  const { id } = await params;
+  logger.apiRequest("GET", `/api/games/${id}`);
+  
   try {
-    const { id } = await params;
     const gameId = parseInt(id);
     
     if (isNaN(gameId)) {
@@ -28,6 +32,8 @@ export async function GET(
     
     const scenarios = await queries.getScenariosByGameId(gameId);
     
+    logger.apiResponse("GET", `/api/games/${id}`, 200, Date.now() - startTime, { gameId, scenarioCount: scenarios.length });
+    
     return NextResponse.json({
       game: {
         ...game,
@@ -35,7 +41,7 @@ export async function GET(
       },
     });
   } catch (error) {
-    console.error("Error fetching game:", error);
+    logger.apiError("GET", `/api/games/${id}`, error);
     return NextResponse.json(
       { error: "Failed to fetch game" },
       { status: 500 }
@@ -47,8 +53,11 @@ export async function PATCH(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const startTime = Date.now();
+  const { id } = await params;
+  logger.apiRequest("PATCH", `/api/games/${id}`);
+  
   try {
-    const { id } = await params;
     const gameId = parseInt(id);
     
     if (isNaN(gameId)) {
@@ -115,6 +124,8 @@ export async function PATCH(
     const updatedGame = await queries.getGameById(gameId);
     const gameScenarios = await queries.getScenariosByGameId(gameId);
     
+    logger.apiResponse("PATCH", `/api/games/${id}`, 200, Date.now() - startTime, { gameId });
+    
     return NextResponse.json({
       game: {
         ...updatedGame,
@@ -122,7 +133,7 @@ export async function PATCH(
       },
     });
   } catch (error) {
-    console.error("Error updating game:", error);
+    logger.apiError("PATCH", `/api/games/${id}`, error);
     return NextResponse.json(
       { error: "Failed to update game" },
       { status: 500 }
@@ -134,8 +145,11 @@ export async function DELETE(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const startTime = Date.now();
+  const { id } = await params;
+  logger.apiRequest("DELETE", `/api/games/${id}`);
+  
   try {
-    const { id } = await params;
     const gameId = parseInt(id);
     
     if (isNaN(gameId)) {
@@ -167,11 +181,13 @@ export async function DELETE(
     // Delete the game (CASCADE will handle scenarios and submissions)
     await queries.deleteGame(gameId, user.id);
     
+    logger.apiResponse("DELETE", `/api/games/${id}`, 200, Date.now() - startTime, { gameId });
+    
     return NextResponse.json({
       message: "Game deleted successfully",
     });
   } catch (error) {
-    console.error("Error deleting game:", error);
+    logger.apiError("DELETE", `/api/games/${id}`, error);
     return NextResponse.json(
       { error: "Failed to delete game" },
       { status: 500 }
