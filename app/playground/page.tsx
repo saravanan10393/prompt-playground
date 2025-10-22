@@ -386,9 +386,9 @@ export default function PlaygroundPage() {
           {/* Info Card */}
           <Card className="bg-gradient-to-br from-purple-900/20 to-blue-900/20">
             <CardHeader>
-              <CardTitle className="text-sm text-purple-300">How it works</CardTitle>
+              <CardTitle className="text-sm text-purple-400">How it works</CardTitle>
             </CardHeader>
-            <CardContent className="text-xs text-gray-400 space-y-2">
+            <CardContent className="text-xs text-muted-foreground space-y-2">
               <p>1. Configure your model and settings</p>
               <p>2. Select a prompting strategy (optional)</p>
               <p>3. Type your message and click &quot;Apply Strategy&quot; to refine</p>
@@ -404,7 +404,7 @@ export default function PlaygroundPage() {
         {/* Chat Header with Clear Button */}
         {messages.length > 0 && (
           <div className="flex justify-between items-center p-4 border-b border-purple-500/20 glass">
-            <h3 className="text-sm font-medium text-purple-300">Chat</h3>
+            <h3 className="text-sm font-medium text-purple-400">Chat</h3>
             <Button
               variant="outline"
               size="sm"
@@ -427,8 +427,8 @@ export default function PlaygroundPage() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
                   </svg>
                 </div>
-                <h3 className="text-xl font-semibold text-white">Start a conversation</h3>
-                <p className="text-gray-400">
+                <h3 className="text-xl font-semibold text-foreground">Start a conversation</h3>
+                <p className="text-muted-foreground">
                   Type a message below to begin chatting with the AI
                 </p>
               </div>
@@ -440,12 +440,12 @@ export default function PlaygroundPage() {
                 className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}
               >
                 <div className={`max-w-[80%] ${message.role === "user" ? "" : ""}`}>
-                  <div className={`text-xs font-semibold mb-1 ${message.role === "user" ? "text-purple-400 text-right" : "text-blue-400"}`}>
+                  <div className={`text-xs font-semibold mb-1 ${message.role === "user" ? "text-purple-500 text-right" : "text-blue-500"}`}>
                     {message.role === "user" ? "You" : selectedModel}
                   </div>
                   <Response
                     isAnimating={isLoading && message.id === messages[messages.length - 1]?.id}
-                    className={`${message.role === "user" ? "bg-gradient-to-br from-purple-600/30 to-blue-600/30 border border-purple-500/30" : "glass-card"} rounded-xl p-4 text-gray-200`}
+                    className={`${message.role === "user" ? "bg-gradient-to-br from-purple-600/30 to-blue-600/30 border border-purple-500/30" : "glass-card"} rounded-xl p-4 text-foreground`}
                   >
                     {message.content}
                   </Response>

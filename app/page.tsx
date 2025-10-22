@@ -15,8 +15,8 @@ export default function Home() {
               Master Prompt Engineering
             </h1>
             
-            <p className="text-xl text-gray-300 max-w-2xl mx-auto leading-relaxed">
-              Improve your prompt engineering skills through competitive games and hands-on experimentation 
+            <p className="text-xl text-foreground/80 max-w-2xl mx-auto leading-relaxed">
+              Improve your prompt engineering skills through competitive games and hands-on experimentation
               with multiple GPT models and proven prompting strategies.
             </p>
           </div>
@@ -29,9 +29,9 @@ export default function Home() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
-              <h2 className="text-2xl font-semibold text-white">Competitive Games</h2>
-              <p className="text-gray-400">
-                Test your prompt writing skills against other users. Write prompts for scenarios, 
+              <h2 className="text-2xl font-semibold text-foreground">Competitive Games</h2>
+              <p className="text-muted-foreground">
+                Test your prompt writing skills against other users. Write prompts for scenarios,
                 get AI-powered feedback, and climb the leaderboard.
               </p>
               <Link href="/games">
@@ -47,9 +47,9 @@ export default function Home() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
-              <h2 className="text-2xl font-semibold text-white">Playground</h2>
-              <p className="text-gray-400">
-                Experiment with different models, temperatures, and prompting strategies. 
+              <h2 className="text-2xl font-semibold text-foreground">Playground</h2>
+              <p className="text-muted-foreground">
+                Experiment with different models, temperatures, and prompting strategies.
                 Apply zero-shot, few-shot, chain-of-thought, and ReAct techniques.
               </p>
               <Link href="/playground">

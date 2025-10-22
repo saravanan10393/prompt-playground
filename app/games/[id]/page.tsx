@@ -193,7 +193,7 @@ export default function GamePage() {
       <div className="container mx-auto px-4 py-8 flex items-center justify-center min-h-screen">
         <div className="text-center">
           <div className="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500 mb-4"></div>
-          <p className="text-gray-400">Loading game...</p>
+          <p className="text-muted-foreground">Loading game...</p>
         </div>
       </div>
     );
@@ -203,7 +203,7 @@ export default function GamePage() {
     return (
       <div className="container mx-auto px-4 py-8 flex items-center justify-center min-h-screen">
         <div className="glass-card p-12 rounded-2xl text-center">
-          <p className="text-xl text-gray-300">Game not found</p>
+          <p className="text-xl text-foreground">Game not found</p>
         </div>
       </div>
     );
@@ -216,7 +216,7 @@ export default function GamePage() {
       <div className="container mx-auto px-4 py-8 max-w-6xl relative">
         <div className="mb-8">
           <h1 className="text-4xl font-bold mb-2 gradient-text">{game.title}</h1>
-          <p className="text-gray-400">Created by <span className="text-purple-400">{game.creator_name}</span></p>
+          <p className="text-muted-foreground">Created by <span className="text-purple-500">{game.creator_name}</span></p>
         </div>
 
       {!hasSubmitted ? (
@@ -235,10 +235,10 @@ export default function GamePage() {
                   <div key={scenario.id} className="space-y-3 p-4 glass-card rounded-xl">
                     <div className="flex items-start justify-between">
                       <div>
-                        <h3 className="font-semibold text-lg text-white">
+                        <h3 className="font-semibold text-lg text-foreground">
                           Scenario {index + 1}: {scenario.title}
                         </h3>
-                        <p className="text-sm text-gray-400 mt-1">
+                        <p className="text-sm text-muted-foreground mt-1">
                           {scenario.description}
                         </p>
                       </div>
@@ -289,30 +289,30 @@ export default function GamePage() {
                   return (
                     <div key={evaluation.scenarioId} className="space-y-3 p-4 glass-card rounded-xl">
                       <div className="flex items-center justify-between">
-                        <h3 className="font-semibold text-white">
+                        <h3 className="font-semibold text-foreground">
                           Scenario {index + 1}: {scenario?.title}
                         </h3>
                         <Badge variant={evaluation.score >= 7 ? "default" : "secondary"}>
                           Score: {evaluation.score}/10
                         </Badge>
                       </div>
-                      
+
                       <div>
-                        <h4 className="text-sm font-medium mb-1 text-gray-300">Your Prompt:</h4>
-                        <p className="text-sm bg-gray-900/50 text-gray-300 p-3 rounded-lg font-mono border border-purple-500/20">
+                        <h4 className="text-sm font-medium mb-1 text-foreground/80">Your Prompt:</h4>
+                        <p className="text-sm bg-muted text-foreground p-3 rounded-lg font-mono border border-purple-500/20">
                           {evaluation.prompt}
                         </p>
                       </div>
-                      
+
                       <div>
-                        <h4 className="text-sm font-medium mb-1 text-gray-300">Feedback & Suggestions:</h4>
-                        <p className="text-sm text-gray-400">
+                        <h4 className="text-sm font-medium mb-1 text-foreground/80">Feedback & Suggestions:</h4>
+                        <p className="text-sm text-muted-foreground">
                           {evaluation.feedback}
                         </p>
                       </div>
-                      
+
                       <div>
-                        <h4 className="text-sm font-medium mb-1 text-gray-300">Refined Prompt Example:</h4>
+                        <h4 className="text-sm font-medium mb-1 text-foreground/80">Refined Prompt Example:</h4>
                         <p className="text-sm bg-green-900/30 text-green-300 p-3 rounded-lg font-mono border border-green-500/30">
                           {evaluation.refinedPrompt}
                         </p>
@@ -334,7 +334,7 @@ export default function GamePage() {
               </CardHeader>
               <CardContent>
                 {leaderboard.length === 0 ? (
-                  <p className="text-center text-gray-400 py-8">
+                  <p className="text-center text-muted-foreground py-8">
                     No completed submissions yet
                   </p>
                 ) : (
@@ -345,14 +345,14 @@ export default function GamePage() {
                         className="flex items-center justify-between p-4 glass-card rounded-xl hover-lift"
                       >
                         <div className="flex items-center gap-3">
-                          <div className={`w-10 h-10 rounded-lg flex items-center justify-center font-bold ${index < 3 ? 'bg-gradient-to-br from-purple-500 to-blue-500 text-white' : 'bg-gray-800 text-gray-300'}`}>
+                          <div className={`w-10 h-10 rounded-lg flex items-center justify-center font-bold ${index < 3 ? 'bg-gradient-to-br from-purple-500 to-blue-500 text-white' : 'bg-secondary text-secondary-foreground'}`}>
                             #{index + 1}
                           </div>
-                          <span className="font-medium text-white">{entry.name}</span>
+                          <span className="font-medium text-foreground">{entry.name}</span>
                         </div>
                         <div className="text-right">
                           <p className="font-semibold text-lg gradient-text">{entry.total_score}/30</p>
-                          <p className="text-xs text-gray-400">
+                          <p className="text-xs text-muted-foreground">
                             {new Date(entry.last_submission).toLocaleString()}
                           </p>
                         </div>

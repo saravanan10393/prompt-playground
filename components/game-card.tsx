@@ -134,9 +134,9 @@ export function GameCard({
         <CardHeader>
           <div className="flex items-start justify-between">
             <div className="flex-1">
-              <CardTitle className="text-white group-hover:text-purple-300 transition-colors">{title}</CardTitle>
-              <CardDescription className="text-gray-400">
-                Created by <span className="text-purple-400">{creator_name}</span> on {formattedDate}
+              <CardTitle className="text-foreground group-hover:text-purple-400 transition-colors">{title}</CardTitle>
+              <CardDescription>
+                Created by <span className="text-purple-500">{creator_name}</span> on {formattedDate}
               </CardDescription>
             </div>
             {isOwner && (
