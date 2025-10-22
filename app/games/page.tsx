@@ -64,7 +64,7 @@ export default function GamesPage() {
         <div className="flex justify-between items-center mb-8">
           <div>
             <h1 className="text-4xl font-bold gradient-text mb-2">Games</h1>
-            <p className="text-gray-400">Challenge your prompt engineering skills</p>
+            <p className="text-muted-foreground">Challenge your prompt engineering skills</p>
           </div>
           <Link href="/game-create">
             <Button className="shadow-lg shadow-purple-500/30">Create New Game</Button>
@@ -74,7 +74,7 @@ export default function GamesPage() {
         {isLoading ? (
           <div className="text-center py-20">
             <div className="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500"></div>
-            <p className="text-gray-400 mt-4">Loading games...</p>
+            <p className="text-muted-foreground mt-4">Loading games...</p>
           </div>
         ) : games.length === 0 ? (
           <div className="text-center py-20 space-y-6">
@@ -84,8 +84,8 @@ export default function GamesPage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                 </svg>
               </div>
-              <h3 className="text-xl font-semibold text-white mb-3">No games available yet</h3>
-              <p className="text-gray-400 mb-6">Be the first to create a game and challenge others!</p>
+              <h3 className="text-xl font-semibold text-foreground mb-3">No games available yet</h3>
+              <p className="text-muted-foreground mb-6">Be the first to create a game and challenge others!</p>
               <Link href="/game-create">
                 <Button size="lg" className="shadow-lg shadow-purple-500/30">Create the First Game</Button>
               </Link>

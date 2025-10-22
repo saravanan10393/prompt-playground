@@ -3,19 +3,19 @@ import { Button } from "@/components/ui/button";
 
 export default function Home() {
   return (
-    <div className="relative">
+    <div className="relative min-h-[calc(100vh-73px)]">
       {/* Hero gradient background */}
       <div className="absolute inset-0 bg-gradient-to-br from-purple-900/20 via-transparent to-blue-900/20 pointer-events-none" />
       
-      <div className="container mx-auto px-4 py-16 relative">
-        <div className="max-w-4xl mx-auto text-center space-y-8">
+      <div className="container mx-auto px-4 py-16 relative min-h-[calc(100vh-73px)] flex items-center">
+        <div className="max-w-4xl mx-auto text-center space-y-8 w-full">
           {/* Hero Section */}
           <div className="space-y-6 mb-16">
             <h1 className="text-6xl font-bold tracking-tight gradient-text animate-gradient bg-gradient-to-r from-purple-400 via-blue-400 to-cyan-400">
               Master Prompt Engineering
             </h1>
             
-            <p className="text-xl text-gray-300 max-w-2xl mx-auto leading-relaxed">
+            <p className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
               Improve your prompt engineering skills through competitive games and hands-on experimentation 
               with multiple GPT models and proven prompting strategies.
             </p>
@@ -29,8 +29,8 @@ export default function Home() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
-              <h2 className="text-2xl font-semibold text-white">Competitive Games</h2>
-              <p className="text-gray-400">
+              <h2 className="text-2xl font-semibold text-foreground">Competitive Games</h2>
+              <p className="text-muted-foreground">
                 Test your prompt writing skills against other users. Write prompts for scenarios, 
                 get AI-powered feedback, and climb the leaderboard.
               </p>
@@ -47,8 +47,8 @@ export default function Home() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
-              <h2 className="text-2xl font-semibold text-white">Playground</h2>
-              <p className="text-gray-400">
+              <h2 className="text-2xl font-semibold text-foreground">Playground</h2>
+              <p className="text-muted-foreground">
                 Experiment with different models, temperatures, and prompting strategies. 
                 Apply zero-shot, few-shot, chain-of-thought, and ReAct techniques.
               </p>
