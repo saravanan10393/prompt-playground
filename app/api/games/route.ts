@@ -42,9 +42,9 @@ export async function POST(request: Request) {
     
     logger.debug("Creating game", { userId: user.id, title });
     
-    if (!title || !scenarios || !Array.isArray(scenarios) || scenarios.length !== 3) {
+    if (!title || !scenarios || !Array.isArray(scenarios) || scenarios.length < 1 || scenarios.length > 10) {
       return NextResponse.json(
-        { error: "Invalid request. Title and 3 scenarios required." },
+        { error: "Invalid request. Title and 1-10 scenarios required." },
         { status: 400 }
       );
     }

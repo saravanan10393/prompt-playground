@@ -53,13 +53,13 @@ Please evaluate this prompt and provide a score (1-10) and detailed feedback.`;
 
     const openai = getOpenAIClient();
     const response = await openai.chat.completions.create({
-      model: "gpt-4o",
+      model: "gpt-4.1",
       messages: [
         { role: "system", content: systemPrompt },
         { role: "user", content: userMessage },
       ],
       response_format: { type: "json_object" },
-      temperature: 0.7,
+      temperature: 0.2,
     });
 
     const content = response.choices[0].message.content;
@@ -112,21 +112,12 @@ export async function POST(
       );
     }
     
-    // Check if user has already submitted for this game
-    const existingSubmissions = await queries.getUserSubmissionExists(gameId, user.id);
-    if (Number(existingSubmissions) > 0) {
-      return NextResponse.json(
-        { error: "You have already submitted prompts for this game" },
-        { status: 400 }
-      );
-    }
-    
     const body = await request.json();
     const { submissions } = body as { submissions: SubmissionData[] };
     
-    if (!submissions || !Array.isArray(submissions) || submissions.length !== 3) {
+    if (!submissions || !Array.isArray(submissions)) {
       return NextResponse.json(
-        { error: "Invalid request. Must submit 3 prompts." },
+        { error: "Invalid request. Submissions must be an array." },
         { status: 400 }
       );
     }
@@ -147,10 +138,18 @@ export async function POST(
       order_index: number;
     }>;
     
-    if (scenarios.length !== 3) {
+    if (scenarios.length < 1 || scenarios.length > 10) {
       return NextResponse.json(
         { error: "Invalid game configuration" },
         { status: 500 }
+      );
+    }
+    
+    // Validate that submission count matches scenario count
+    if (submissions.length !== scenarios.length) {
+      return NextResponse.json(
+        { error: `Invalid request. Must submit ${scenarios.length} prompts for this game.` },
+        { status: 400 }
       );
     }
     
@@ -186,6 +185,9 @@ export async function POST(
         refinedPrompt: evaluation.refinedPrompt,
       });
     }
+    
+    // Delete previous submissions if they exist (to keep only the latest)
+    await queries.deleteUserSubmissions(gameId, user.id);
     
     // Save all submissions
     for (const evaluation of evaluations) {

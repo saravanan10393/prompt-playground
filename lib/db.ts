@@ -263,6 +263,14 @@ export const queries = {
 
   async getLeaderboard(gameId: number) {
     try {
+      // First, get the total number of scenarios for this game
+      const scenarioCountResult = await db.execute({
+        sql: "SELECT COUNT(*) as count FROM scenarios WHERE game_id = ?",
+        args: [gameId],
+      });
+      const totalScenarios = scenarioCountResult.rows[0]?.count || 0;
+      
+      // Then get the leaderboard for users who completed all scenarios
       const result = await db.execute({
         sql: `
           SELECT 
@@ -275,10 +283,10 @@ export const queries = {
           JOIN users u ON s.user_id = u.id
           WHERE s.game_id = ?
           GROUP BY s.user_id
-          HAVING scenarios_completed = 3
+          HAVING scenarios_completed = ?
           ORDER BY total_score DESC, last_submission ASC
         `,
-        args: [gameId],
+        args: [gameId, totalScenarios],
       });
       return result.rows;
     } catch (error) {
@@ -297,6 +305,19 @@ export const queries = {
     } catch (error) {
       console.error(`Failed to check if user submission exists for game ${gameId} and user ${userId}: ${error instanceof Error ? error.message : String(error)}`);
       throw new Error(`Database error: Failed to check submission existence`);
+    }
+  },
+
+  async deleteUserSubmissions(gameId: number, userId: number) {
+    try {
+      const result = await db.execute({
+        sql: "DELETE FROM submissions WHERE game_id = ? AND user_id = ?",
+        args: [gameId, userId],
+      });
+      return result;
+    } catch (error) {
+      console.error(`Failed to delete submissions for game ${gameId} and user ${userId}: ${error instanceof Error ? error.message : String(error)}`);
+      throw new Error(`Database error: Failed to delete submissions`);
     }
   },
 

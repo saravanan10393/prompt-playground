@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 import { queries } from "@/lib/db";
-import { getUserFromRequest } from "@/lib/auth";
 import { logger } from "@/lib/logger";
 
 export async function GET(
@@ -21,24 +20,14 @@ export async function GET(
       );
     }
     
-    const user = await getUserFromRequest(request);
-    
-    if (!user) {
-      return NextResponse.json(
-        { error: "Unauthorized" },
-        { status: 401 }
-      );
-    }
-    
-    // Check if user is the creator
-    const game = await queries.getGameByIdAndCreator(gameId, user.id);
+    // Check if game exists
+    const game = await queries.getGameById(gameId);
     
     if (!game) {
-      return NextResponse.json({
-        editable: false,
-        hasSubmissions: false,
-        reason: "You don't have permission to edit this game",
-      });
+      return NextResponse.json(
+        { error: "Game not found" },
+        { status: 404 }
+      );
     }
     
     // Check if game has submissions

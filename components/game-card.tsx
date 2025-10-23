@@ -28,8 +28,6 @@ interface GameCardProps {
   title: string;
   creator_name: string;
   created_at: string;
-  currentUserId?: number;
-  creatorId?: number;
   onGameUpdated?: () => void;
   onGameDeleted?: () => void;
 }
@@ -39,18 +37,14 @@ export function GameCard({
   title, 
   creator_name, 
   created_at, 
-  currentUserId,
-  creatorId,
   onGameUpdated,
-  onGameDeleted 
+  onGameDeleted
 }: GameCardProps) {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [game, setGame] = useState<Game | null>(null);
   const [hasSubmissions, setHasSubmissions] = useState(false);
-  
-  const isOwner = currentUserId && creatorId && currentUserId === creatorId;
   
   const formattedDate = new Date(created_at).toLocaleDateString("en-US", {
     year: "numeric",
@@ -139,34 +133,32 @@ export function GameCard({
                 Created by <span className="text-purple-400">{creator_name}</span> on {formattedDate}
               </CardDescription>
             </div>
-            {isOwner && (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                    <MoreVertical className="h-4 w-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem onClick={handleEdit}>
-                    <Edit className="mr-2 h-4 w-4" />
-                    Edit Game
-                  </DropdownMenuItem>
-                  <DropdownMenuItem 
-                    onClick={() => setIsDeleteDialogOpen(true)}
-                    className="text-destructive"
-                  >
-                    <Trash2 className="mr-2 h-4 w-4" />
-                    Delete Game
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <Link href={`/games/${id}`}>
-                      <BarChart3 className="mr-2 h-4 w-4" />
-                      View Results
-                    </Link>
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            )}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                  <MoreVertical className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={handleEdit}>
+                  <Edit className="mr-2 h-4 w-4" />
+                  Edit Game
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  onClick={() => setIsDeleteDialogOpen(true)}
+                  className="text-destructive"
+                >
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  Delete Game
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href={`/games/${id}`}>
+                    <BarChart3 className="mr-2 h-4 w-4" />
+                    View Results
+                  </Link>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </CardHeader>
         <CardContent>

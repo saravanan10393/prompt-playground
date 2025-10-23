@@ -102,9 +102,9 @@ export function GameEditDialog({
         </DialogHeader>
         
         {hasSubmissions && (
-          <div className="flex items-start gap-2 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-            <AlertTriangle className="h-4 w-4 text-yellow-600 mt-0.5" />
-            <div className="text-sm text-yellow-800">
+          <div className="flex items-start gap-2 p-3 bg-yellow-500/10 border border-yellow-500/30 rounded-lg">
+            <AlertTriangle className="h-4 w-4 text-yellow-600 dark:text-yellow-400 mt-0.5" />
+            <div className="text-sm text-yellow-800 dark:text-yellow-200">
               <p className="font-medium">Warning: This game has submissions</p>
               <p>Editing may affect the experience of users who have already participated.</p>
             </div>

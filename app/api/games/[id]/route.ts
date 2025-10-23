@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 import { queries } from "@/lib/db";
-import { getUserFromRequest } from "@/lib/auth";
 import { logger } from "@/lib/logger";
 
 export async function GET(
@@ -67,21 +66,12 @@ export async function PATCH(
       );
     }
     
-    const user = await getUserFromRequest(request);
-    
-    if (!user) {
-      return NextResponse.json(
-        { error: "Unauthorized" },
-        { status: 401 }
-      );
-    }
-    
-    // Verify user is the creator
-    const game = await queries.getGameByIdAndCreator(gameId, user.id);
+    // Check if game exists
+    const game = await queries.getGameById(gameId);
     
     if (!game) {
       return NextResponse.json(
-        { error: "Game not found or you don't have permission to edit it" },
+        { error: "Game not found" },
         { status: 404 }
       );
     }
@@ -107,8 +97,8 @@ export async function PATCH(
     }
     
     // Update game and scenarios
-    // Update game title
-    await queries.updateGame(gameId, title, user.id);
+    // Update game title (using creator_id from existing game)
+    await queries.updateGame(gameId, title, game.creator_id as number);
     
     // Update scenarios
     for (const scenario of scenarios) {
@@ -159,27 +149,19 @@ export async function DELETE(
       );
     }
     
-    const user = await getUserFromRequest(request);
-    
-    if (!user) {
-      return NextResponse.json(
-        { error: "Unauthorized" },
-        { status: 401 }
-      );
-    }
-    
-    // Verify user is the creator
-    const game = await queries.getGameByIdAndCreator(gameId, user.id);
+    // Check if game exists
+    const game = await queries.getGameById(gameId);
     
     if (!game) {
       return NextResponse.json(
-        { error: "Game not found or you don't have permission to delete it" },
+        { error: "Game not found" },
         { status: 404 }
       );
     }
     
     // Delete the game (CASCADE will handle scenarios and submissions)
-    await queries.deleteGame(gameId, user.id);
+    // Using the existing creator_id from the game
+    await queries.deleteGame(gameId, game.creator_id as number);
     
     logger.apiResponse("DELETE", `/api/games/${id}`, 200, Date.now() - startTime, { gameId });
     

@@ -74,24 +74,28 @@ The database schema will be automatically initialized on first connection.
 ### 4. Test the Application
 
 #### Test Game Flow:
-1. Go to http://localhost:3000
-2. Click "Play Games"
-3. Click "Create New Game"
-4. Fill in game title and 3 scenarios
-5. Submit to create the game
-6. Write prompts for all 3 scenarios
-7. Click "Submit All Prompts"
-8. View your scores, feedback, and leaderboard
+1. Go to http://localhost:3000/admin
+2. Create a new game with title and scenarios
+3. Submit to create the game
+4. Click "Play Game" on any game
+5. Write prompts for all scenarios
+6. Click "Submit All Prompts"
+7. View your scores, feedback, and leaderboard
+
+#### Test Admin Features:
+1. Visit http://localhost:3000/admin
+2. Everyone has full admin access to create, edit, and delete games
+3. You'll see "Create Game" and "Manage Games" tabs
+4. Create games, edit existing ones, or delete them
 
 #### Test Playground:
-1. Go to http://localhost:3000
-2. Click "Open Playground"
-3. Configure system prompt, model, and temperature
-4. Select a prompting strategy (e.g., "Chain-of-Thought")
-5. Type a prompt and click "Apply Strategy"
-6. Review the refined prompt
-7. Click "Use Refined Prompt" and send to chat
-8. See the streaming AI response
+1. Go to http://localhost:3000/playground
+2. Configure system prompt, model, and temperature
+3. Select a prompting strategy (e.g., "Chain-of-Thought")
+4. Type a prompt and click "Apply Strategy"
+5. Review the refined prompt
+6. Click "Use Refined Prompt" and send to chat
+7. See the streaming AI response
 
 ## Database
 
@@ -160,9 +164,11 @@ TURSO_DATABASE_URL=file:prompt-playground.db
 ## Features Implemented
 
 ✅ User authentication with cookie-based tokens
-✅ Game creation with 3 scenarios
-✅ Games list page
-✅ Batch prompt submission (all 3 at once)
+✅ Admin page for game management (create, edit, delete)
+✅ Public admin access - everyone can manage games
+✅ Game creation with flexible scenarios (1-10 scenarios)
+✅ Public game play page accessible to all
+✅ Batch prompt submission
 ✅ AI-powered evaluation with GPT-4o
 ✅ Detailed feedback and improvement suggestions
 ✅ Real-time leaderboard
@@ -175,6 +181,7 @@ TURSO_DATABASE_URL=file:prompt-playground.db
 ✅ Streaming chat responses
 ✅ Modern, responsive UI with shadcn/ui
 ✅ AI Elements integration for chat interface
+✅ Clean interface without navigation bar
 
 ## Workshop Demo Tips
 

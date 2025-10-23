@@ -132,6 +132,21 @@ export default function GamePage() {
     setShowNameEntry(false);
   };
 
+  const handlePlayAgain = () => {
+    setHasSubmitted(false);
+    setEvaluations([]);
+    setTotalScore(0);
+    // Reset all prompts
+    if (game) {
+      setSubmissions(
+        game.scenarios.map((s) => ({
+          scenarioId: s.id,
+          prompt: "",
+        }))
+      );
+    }
+  };
+
   const updatePrompt = (scenarioId: number, prompt: string) => {
     setSubmissions((prev) =>
       prev.map((s) => (s.scenarioId === scenarioId ? { ...s, prompt } : s))
@@ -209,14 +224,23 @@ export default function GamePage() {
     );
   }
 
+  // Calculate dynamic max-width based on number of scenarios
+  const getMaxWidth = () => {
+    if (!game) return "max-w-6xl";
+    const scenarioCount = game.scenarios.length;
+    if (scenarioCount <= 2) return "max-w-2xl";
+    if (scenarioCount <= 5) return "max-w-4xl";
+    return "max-w-6xl";
+  };
+
   return (
     <div className="relative min-h-screen">
       <div className="absolute inset-0 bg-gradient-to-br from-purple-900/10 via-transparent to-blue-900/10 pointer-events-none" />
       
-      <div className="container mx-auto px-4 py-8 max-w-6xl relative">
+      <div className={`container mx-auto px-4 py-8 ${getMaxWidth()} relative`}>
         <div className="mb-8">
           <h1 className="text-4xl font-bold mb-2 gradient-text">{game.title}</h1>
-          <p className="text-gray-400">Created by <span className="text-purple-400">{game.creator_name}</span></p>
+          {/* <p className="text-gray-400">Created by <span className="text-purple-400">{game.creator_name}</span></p> */}
         </div>
 
       {!hasSubmitted ? (
@@ -225,7 +249,7 @@ export default function GamePage() {
             <CardHeader>
               <CardTitle>Write Your Prompts</CardTitle>
               <CardDescription>
-                Write a prompt for each scenario below. All prompts will be evaluated together after submission.
+                Write a prompt for {game.scenarios.length === 1 ? 'the challenge' : `each of the ${game.scenarios.length} challenges`} below.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
@@ -235,10 +259,10 @@ export default function GamePage() {
                   <div key={scenario.id} className="space-y-3 p-4 glass-card rounded-xl">
                     <div className="flex items-start justify-between">
                       <div>
-                        <h3 className="font-semibold text-lg text-white">
-                          Scenario {index + 1}: {scenario.title}
+                        <h3 className="font-semibold text-lg text-foreground">
+                          {scenario.title}
                         </h3>
-                        <p className="text-sm text-gray-400 mt-1">
+                        <p className="text-sm text-muted-foreground mt-1">
                           {scenario.description}
                         </p>
                       </div>
@@ -263,7 +287,7 @@ export default function GamePage() {
                 size="lg"
                 className="w-full"
               >
-                {isSubmitting ? "Evaluating..." : "Submit All Prompts"}
+                {isSubmitting ? "Evaluating..." : "Submit Prompts"}
               </Button>
             </CardContent>
           </Card>
@@ -278,10 +302,17 @@ export default function GamePage() {
           <TabsContent value="results" className="space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle>Your Score: {totalScore}/30</CardTitle>
-                <CardDescription>
-                  Here&apos;s how your prompts performed
-                </CardDescription>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle>Your Score: {totalScore}/{game.scenarios.length * 10}</CardTitle>
+                    <CardDescription>
+                      Here&apos;s how your {game.scenarios.length === 1 ? 'prompt' : 'prompts'} performed
+                    </CardDescription>
+                  </div>
+                  <Button onClick={handlePlayAgain} variant="outline">
+                    Play Again
+                  </Button>
+                </div>
               </CardHeader>
               <CardContent className="space-y-6">
                 {evaluations.map((evaluation, index) => {
@@ -289,8 +320,8 @@ export default function GamePage() {
                   return (
                     <div key={evaluation.scenarioId} className="space-y-3 p-4 glass-card rounded-xl">
                       <div className="flex items-center justify-between">
-                        <h3 className="font-semibold text-white">
-                          Scenario {index + 1}: {scenario?.title}
+                        <h3 className="font-semibold text-foreground">
+                          {scenario?.title}
                         </h3>
                         <Badge variant={evaluation.score >= 7 ? "default" : "secondary"}>
                           Score: {evaluation.score}/10
@@ -298,22 +329,22 @@ export default function GamePage() {
                       </div>
                       
                       <div>
-                        <h4 className="text-sm font-medium mb-1 text-gray-300">Your Prompt:</h4>
-                        <p className="text-sm bg-gray-900/50 text-gray-300 p-3 rounded-lg font-mono border border-purple-500/20">
+                        <h4 className="text-sm font-medium mb-1 text-foreground">Your Prompt:</h4>
+                        <p className="text-sm bg-muted/80 text-foreground p-3 rounded-lg font-mono border border-purple-500/20">
                           {evaluation.prompt}
                         </p>
                       </div>
                       
                       <div>
-                        <h4 className="text-sm font-medium mb-1 text-gray-300">Feedback & Suggestions:</h4>
-                        <p className="text-sm text-gray-400">
+                        <h4 className="text-sm font-medium mb-1 text-foreground">Feedback & Suggestions:</h4>
+                        <p className="text-sm text-muted-foreground">
                           {evaluation.feedback}
                         </p>
                       </div>
                       
                       <div>
-                        <h4 className="text-sm font-medium mb-1 text-gray-300">Refined Prompt Example:</h4>
-                        <p className="text-sm bg-green-900/30 text-green-300 p-3 rounded-lg font-mono border border-green-500/30">
+                        <h4 className="text-sm font-medium mb-1 text-foreground">Refined Prompt Example:</h4>
+                        <p className="text-sm bg-green-500/10 text-green-700 dark:text-green-300 p-3 rounded-lg font-mono border border-green-500/30">
                           {evaluation.refinedPrompt}
                         </p>
                       </div>
@@ -329,7 +360,7 @@ export default function GamePage() {
               <CardHeader>
                 <CardTitle>Leaderboard</CardTitle>
                 <CardDescription>
-                  Rankings of all participants who completed all scenarios
+                  Rankings of all participants who completed all {game.scenarios.length} {game.scenarios.length === 1 ? 'challenge' : 'challenges'}
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -345,14 +376,14 @@ export default function GamePage() {
                         className="flex items-center justify-between p-4 glass-card rounded-xl hover-lift"
                       >
                         <div className="flex items-center gap-3">
-                          <div className={`w-10 h-10 rounded-lg flex items-center justify-center font-bold ${index < 3 ? 'bg-gradient-to-br from-purple-500 to-blue-500 text-white' : 'bg-gray-800 text-gray-300'}`}>
+                          <div className={`w-10 h-10 rounded-lg flex items-center justify-center font-bold ${index < 3 ? 'bg-gradient-to-br from-purple-500 to-blue-500 text-white' : 'bg-muted text-foreground'}`}>
                             #{index + 1}
                           </div>
-                          <span className="font-medium text-white">{entry.name}</span>
+                          <span className="font-medium text-foreground">{entry.name}</span>
                         </div>
                         <div className="text-right">
-                          <p className="font-semibold text-lg gradient-text">{entry.total_score}/30</p>
-                          <p className="text-xs text-gray-400">
+                          <p className="font-semibold text-lg gradient-text">{entry.total_score}/{game.scenarios.length * 10}</p>
+                          <p className="text-xs text-muted-foreground">
                             {new Date(entry.last_submission).toLocaleString()}
                           </p>
                         </div>

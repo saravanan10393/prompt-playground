@@ -386,7 +386,7 @@ export default function PlaygroundPage() {
           {/* Info Card */}
           <Card className="bg-gradient-to-br from-purple-900/20 to-blue-900/20">
             <CardHeader>
-              <CardTitle className="text-sm text-purple-300">How it works</CardTitle>
+              <CardTitle className="text-sm text-purple-400 dark:text-purple-300">How it works</CardTitle>
             </CardHeader>
             <CardContent className="text-xs text-muted-foreground space-y-2">
               <p>1. Configure your model and settings</p>
@@ -404,7 +404,7 @@ export default function PlaygroundPage() {
         {/* Chat Header with Clear Button */}
         {messages.length > 0 && (
           <div className="flex justify-between items-center p-4 border-b border-purple-500/20 glass">
-            <h3 className="text-sm font-medium text-purple-300">Chat</h3>
+            <h3 className="text-sm font-medium text-purple-400 dark:text-purple-300">Chat</h3>
             <Button
               variant="outline"
               size="sm"
@@ -440,7 +440,7 @@ export default function PlaygroundPage() {
                 className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}
               >
                 <div className={`max-w-[80%] ${message.role === "user" ? "" : ""}`}>
-                  <div className={`text-xs font-semibold mb-1 ${message.role === "user" ? "text-purple-400 text-right" : "text-blue-400"}`}>
+                  <div className={`text-xs font-semibold mb-1 ${message.role === "user" ? "text-purple-500 dark:text-purple-400 text-right" : "text-blue-500 dark:text-blue-400"}`}>
                     {message.role === "user" ? "You" : selectedModel}
                   </div>
                   <Response
