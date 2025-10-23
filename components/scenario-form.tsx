@@ -46,7 +46,7 @@ export function ScenarioForm({ index, title, description, onChange, onDelete, ca
       
       <div className="space-y-2">
         <Label htmlFor={`scenario-description-${index}`}>
-          Description <span className="text-gray-500">(optional)</span>
+          Description <span className="text-muted-foreground">(optional)</span>
         </Label>
         <Textarea
           id={`scenario-description-${index}`}

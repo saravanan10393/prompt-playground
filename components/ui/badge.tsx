@@ -12,11 +12,11 @@ const badgeVariants = cva(
         default:
           "border-transparent bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-sm",
         secondary:
-          "border-purple-500/30 bg-gray-800/60 text-gray-300 backdrop-blur-sm",
+          "border-purple-500/30 bg-muted text-foreground backdrop-blur-sm",
         destructive:
           "border-transparent bg-destructive text-white [a&]:hover:bg-destructive/90 shadow-sm",
         outline:
-          "text-gray-300 border-purple-500/30 bg-transparent backdrop-blur-sm [a&]:hover:bg-purple-500/10",
+          "text-foreground border-purple-500/30 bg-transparent backdrop-blur-sm [a&]:hover:bg-purple-500/10",
       },
     },
     defaultVariants: {

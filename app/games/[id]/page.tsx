@@ -208,7 +208,7 @@ export default function GamePage() {
       <div className="container mx-auto px-4 py-8 flex items-center justify-center min-h-screen">
         <div className="text-center">
           <div className="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500 mb-4"></div>
-          <p className="text-gray-400">Loading game...</p>
+          <p className="text-muted-foreground">Loading game...</p>
         </div>
       </div>
     );
@@ -218,7 +218,7 @@ export default function GamePage() {
     return (
       <div className="container mx-auto px-4 py-8 flex items-center justify-center min-h-screen">
         <div className="glass-card p-12 rounded-2xl text-center">
-          <p className="text-xl text-gray-300">Game not found</p>
+          <p className="text-xl text-foreground">Game not found</p>
         </div>
       </div>
     );
@@ -238,59 +238,82 @@ export default function GamePage() {
       <div className="absolute inset-0 bg-gradient-to-br from-purple-900/10 via-transparent to-blue-900/10 pointer-events-none" />
       
       <div className={`container mx-auto px-4 py-8 ${getMaxWidth()} relative`}>
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold mb-2 gradient-text">{game.title}</h1>
+        <div className="mb-12 text-center">
+          <h1 className="text-5xl font-bold mb-3 gradient-text leading-tight">{game.title}</h1>
           {/* <p className="text-gray-400">Created by <span className="text-purple-400">{game.creator_name}</span></p> */}
+          <div className="w-24 h-1 mx-auto mt-4 bg-gradient-to-r from-purple-500 to-blue-500 rounded-full"></div>
         </div>
 
       {!hasSubmitted ? (
         <div className="space-y-8">
-          <Card>
-            <CardHeader>
-              <CardTitle>Write Your Prompts</CardTitle>
-              <CardDescription>
-                Write a prompt for {game.scenarios.length === 1 ? 'the challenge' : `each of the ${game.scenarios.length} challenges`} below.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              {game.scenarios.map((scenario, index) => {
-                const submission = submissions.find((s) => s.scenarioId === scenario.id);
-                return (
-                  <div key={scenario.id} className="space-y-3 p-4 glass-card rounded-xl">
-                    <div className="flex items-start justify-between">
-                      <div>
-                        <h3 className="font-semibold text-lg text-foreground">
-                          {scenario.title}
-                        </h3>
-                        <p className="text-sm text-muted-foreground mt-1">
-                          {scenario.description}
-                        </p>
-                      </div>
-                      <Badge variant="outline">
-                        {submission?.prompt.trim() ? "✓" : "Empty"}
-                      </Badge>
+          {/* Introductory header */}
+          <div className="text-center space-y-3 mb-6">
+            <h2 className="text-3xl font-bold gradient-text">
+              {game.scenarios.length === 1 ? 'Your Challenge' : `${game.scenarios.length} Challenges`}
+            </h2>
+            <p className="text-lg text-foreground/80 max-w-2xl mx-auto leading-relaxed">
+              Write a prompt for {game.scenarios.length === 1 ? 'the challenge' : 'each challenge'} below. Make your prompts clear, specific, and effective.
+            </p>
+          </div>
+
+          {/* Individual scenario cards */}
+          {game.scenarios.map((scenario, index) => {
+            const submission = submissions.find((s) => s.scenarioId === scenario.id);
+            return (
+              <Card key={scenario.id} className="overflow-hidden border-2 hover-lift">
+                <CardHeader className="pb-4 space-y-4">
+                  <div className="flex items-start gap-4">
+                    {/* Numbered badge */}
+                    <div className="flex-shrink-0 w-14 h-14 rounded-xl bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center shadow-lg">
+                      <span className="text-2xl font-bold text-white">#{index + 1}</span>
                     </div>
-                    <Textarea
-                      placeholder="Write your prompt here..."
-                      value={submission?.prompt || ""}
-                      onChange={(e) => updatePrompt(scenario.id, e.target.value)}
-                      rows={6}
-                      disabled={isSubmitting}
-                    />
+                    
+                    <div className="flex-1 space-y-2">
+                      <CardTitle className="text-2xl font-bold text-foreground leading-tight">
+                        {scenario.title}
+                      </CardTitle>
+                      <CardDescription className="text-base text-foreground/80 leading-relaxed">
+                        {scenario.description}
+                      </CardDescription>
+                    </div>
                   </div>
-                );
-              })}
-              
-              <Button
-                onClick={handleSubmitAll}
-                disabled={isSubmitting}
-                size="lg"
-                className="w-full"
-              >
-                {isSubmitting ? "Evaluating..." : "Submit Prompts"}
-              </Button>
-            </CardContent>
-          </Card>
+                </CardHeader>
+                
+                <CardContent className="pt-4 space-y-2">
+                  <Textarea
+                    placeholder="Write your prompt here... Be specific and clear about what you want to achieve."
+                    value={submission?.prompt || ""}
+                    onChange={(e) => updatePrompt(scenario.id, e.target.value)}
+                    rows={6}
+                    disabled={isSubmitting}
+                    className="text-xl md:text-xl leading-relaxed resize-y border-2 focus:border-purple-500/50 min-h-[140px] placeholder:text-xl"
+                  />
+                  <p className="text-sm text-muted-foreground">
+                    💡 Tip: Think about clarity, specificity, and desired outcomes when crafting your prompt.
+                  </p>
+                </CardContent>
+              </Card>
+            );
+          })}
+          
+          {/* Submit button */}
+          <div className="flex justify-center pt-4">
+            <Button
+              onClick={handleSubmitAll}
+              disabled={isSubmitting}
+              size="lg"
+              className="px-12 py-6 text-lg font-semibold shadow-lg hover:shadow-xl transition-all"
+            >
+              {isSubmitting ? (
+                <>
+                  <div className="inline-block animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-white mr-3"></div>
+                  Evaluating Your Prompts...
+                </>
+              ) : (
+                <>Submit All Prompts</>
+              )}
+            </Button>
+          </div>
         </div>
       ) : (
         <Tabs defaultValue="results" className="space-y-6">
@@ -300,91 +323,150 @@ export default function GamePage() {
           </TabsList>
           
           <TabsContent value="results" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <CardTitle>Your Score: {totalScore}/{game.scenarios.length * 10}</CardTitle>
-                    <CardDescription>
-                      Here&apos;s how your {game.scenarios.length === 1 ? 'prompt' : 'prompts'} performed
-                    </CardDescription>
-                  </div>
-                  <Button onClick={handlePlayAgain} variant="outline">
-                    Play Again
-                  </Button>
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                {evaluations.map((evaluation, index) => {
-                  const scenario = game.scenarios.find((s) => s.id === evaluation.scenarioId);
-                  return (
-                    <div key={evaluation.scenarioId} className="space-y-3 p-4 glass-card rounded-xl">
-                      <div className="flex items-center justify-between">
-                        <h3 className="font-semibold text-foreground">
-                          {scenario?.title}
-                        </h3>
-                        <Badge variant={evaluation.score >= 7 ? "default" : "secondary"}>
-                          Score: {evaluation.score}/10
-                        </Badge>
+            {/* Score header */}
+            <div className="text-center space-y-4 p-8 glass-card rounded-2xl">
+              <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 shadow-xl mb-2">
+                <span className="text-3xl font-bold text-white">{totalScore}</span>
+              </div>
+              <h2 className="text-3xl font-bold gradient-text">
+                Your Score: {totalScore}/{game.scenarios.length * 10}
+              </h2>
+              <p className="text-lg text-foreground/80 leading-relaxed">
+                Here&apos;s how your {game.scenarios.length === 1 ? 'prompt' : 'prompts'} performed
+              </p>
+              <Button onClick={handlePlayAgain} variant="outline" size="lg" className="mt-4">
+                🔄 Play Again
+              </Button>
+            </div>
+
+            {/* Individual evaluation cards */}
+            {evaluations.map((evaluation, index) => {
+              const scenario = game.scenarios.find((s) => s.id === evaluation.scenarioId);
+              const scenarioIndex = game.scenarios.findIndex((s) => s.id === evaluation.scenarioId);
+              return (
+                <Card key={evaluation.scenarioId} className="overflow-hidden border-2">
+                  <CardHeader className="pb-4 space-y-4 bg-gradient-to-r from-purple-500/5 to-blue-500/5">
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="flex items-start gap-4 flex-1">
+                        {/* Numbered badge */}
+                        <div className="flex-shrink-0 w-14 h-14 rounded-xl bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center shadow-lg">
+                          <span className="text-2xl font-bold text-white">#{scenarioIndex + 1}</span>
+                        </div>
+                        
+                        <div className="flex-1">
+                          <CardTitle className="text-2xl font-bold text-foreground leading-tight">
+                            {scenario?.title}
+                          </CardTitle>
+                        </div>
                       </div>
                       
-                      <div>
-                        <h4 className="text-sm font-medium mb-1 text-foreground">Your Prompt:</h4>
-                        <p className="text-sm bg-muted/80 text-foreground p-3 rounded-lg font-mono border border-purple-500/20">
-                          {evaluation.prompt}
-                        </p>
-                      </div>
-                      
-                      <div>
-                        <h4 className="text-sm font-medium mb-1 text-foreground">Feedback & Suggestions:</h4>
-                        <p className="text-sm text-muted-foreground">
-                          {evaluation.feedback}
-                        </p>
-                      </div>
-                      
-                      <div>
-                        <h4 className="text-sm font-medium mb-1 text-foreground">Refined Prompt Example:</h4>
-                        <p className="text-sm bg-green-500/10 text-green-700 dark:text-green-300 p-3 rounded-lg font-mono border border-green-500/30">
-                          {evaluation.refinedPrompt}
-                        </p>
+                      {/* Score badge */}
+                      <Badge 
+                        variant={evaluation.score >= 7 ? "default" : "secondary"}
+                        className="flex-shrink-0 px-4 py-2 text-base font-bold"
+                      >
+                        {evaluation.score}/10
+                      </Badge>
+                    </div>
+                  </CardHeader>
+                  
+                  <CardContent className="space-y-6 pt-6">
+                    {/* Your Prompt */}
+                    <div className="space-y-3">
+                      <h4 className="text-base font-semibold text-foreground flex items-center gap-2">
+                        <span className="text-purple-500">📝</span> Your Prompt
+                      </h4>
+                      <div className="bg-muted/80 text-foreground p-4 rounded-xl font-mono text-sm border-2 border-purple-500/20 leading-relaxed">
+                        {evaluation.prompt}
                       </div>
                     </div>
-                  );
-                })}
-              </CardContent>
-            </Card>
+                    
+                    {/* Feedback */}
+                    <div className="space-y-3">
+                      <h4 className="text-base font-semibold text-foreground flex items-center gap-2">
+                        <span className="text-blue-500">💬</span> Feedback & Suggestions
+                      </h4>
+                      <p className="text-base text-foreground/80 leading-relaxed p-4 bg-blue-500/5 rounded-xl border border-blue-500/20">
+                        {evaluation.feedback}
+                      </p>
+                    </div>
+                    
+                    {/* Refined Prompt */}
+                    <div className="space-y-3">
+                      <h4 className="text-base font-semibold text-foreground flex items-center gap-2">
+                        <span className="text-green-500">✨</span> Refined Prompt Example
+                      </h4>
+                      <div className="bg-green-500/10 text-green-700 dark:text-green-300 p-4 rounded-xl font-mono text-sm border-2 border-green-500/30 leading-relaxed">
+                        {evaluation.refinedPrompt}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })}
           </TabsContent>
           
           <TabsContent value="leaderboard">
-            <Card>
-              <CardHeader>
-                <CardTitle>Leaderboard</CardTitle>
-                <CardDescription>
+            <Card className="overflow-hidden border-2">
+              <CardHeader className="space-y-2 bg-gradient-to-r from-purple-500/5 to-blue-500/5">
+                <CardTitle className="text-3xl font-bold gradient-text">
+                  🏆 Leaderboard
+                </CardTitle>
+                <CardDescription className="text-base">
                   Rankings of all participants who completed all {game.scenarios.length} {game.scenarios.length === 1 ? 'challenge' : 'challenges'}
                 </CardDescription>
               </CardHeader>
-              <CardContent>
+              <CardContent className="pt-6">
                 {leaderboard.length === 0 ? (
-                  <p className="text-center text-gray-400 py-8">
-                    No completed submissions yet
-                  </p>
+                  <div className="text-center py-16">
+                    <div className="text-6xl mb-4">🎯</div>
+                    <p className="text-lg text-muted-foreground">
+                      No completed submissions yet
+                    </p>
+                    <p className="text-sm text-muted-foreground mt-2">
+                      Be the first to complete all challenges!
+                    </p>
+                  </div>
                 ) : (
-                  <div className="space-y-2">
+                  <div className="space-y-3 max-h-[60vh] overflow-y-auto pr-2">
                     {leaderboard.map((entry, index) => (
                       <div
                         key={entry.token}
-                        className="flex items-center justify-between p-4 glass-card rounded-xl hover-lift"
+                        className="flex items-center justify-between p-5 glass-card rounded-xl hover-lift border-2 border-transparent hover:border-purple-500/30 transition-all"
                       >
-                        <div className="flex items-center gap-3">
-                          <div className={`w-10 h-10 rounded-lg flex items-center justify-center font-bold ${index < 3 ? 'bg-gradient-to-br from-purple-500 to-blue-500 text-white' : 'bg-muted text-foreground'}`}>
-                            #{index + 1}
+                        <div className="flex items-center gap-4 flex-1">
+                          {/* Rank badge */}
+                          <div className={`w-14 h-14 rounded-xl flex items-center justify-center font-bold shadow-lg ${
+                            index === 0 
+                              ? 'bg-gradient-to-br from-yellow-400 to-yellow-600 text-white' 
+                              : index === 1 
+                              ? 'bg-gradient-to-br from-gray-300 to-gray-500 text-white'
+                              : index === 2
+                              ? 'bg-gradient-to-br from-orange-400 to-orange-600 text-white'
+                              : 'bg-gradient-to-br from-purple-500 to-blue-500 text-white'
+                          }`}>
+                            <span className="text-xl">#{index + 1}</span>
                           </div>
-                          <span className="font-medium text-foreground">{entry.name}</span>
+                          
+                          {/* Name */}
+                          <div className="flex-1">
+                            <span className="font-semibold text-lg text-foreground">{entry.name}</span>
+                            {index < 3 && (
+                              <span className="ml-2 text-xl">
+                                {index === 0 ? '🥇' : index === 1 ? '🥈' : '🥉'}
+                              </span>
+                            )}
+                          </div>
                         </div>
+                        
+                        {/* Score */}
                         <div className="text-right">
-                          <p className="font-semibold text-lg gradient-text">{entry.total_score}/{game.scenarios.length * 10}</p>
-                          <p className="text-xs text-muted-foreground">
-                            {new Date(entry.last_submission).toLocaleString()}
+                          <p className="font-bold text-2xl gradient-text">
+                            {entry.total_score}
+                            <span className="text-sm text-muted-foreground font-normal">/{game.scenarios.length * 10}</span>
+                          </p>
+                          <p className="text-xs text-muted-foreground mt-1">
+                            {new Date(entry.last_submission).toLocaleDateString()} at {new Date(entry.last_submission).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                           </p>
                         </div>
                       </div>

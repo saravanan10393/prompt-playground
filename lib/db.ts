@@ -351,8 +351,8 @@ export const queries = {
   async updateGame(id: number, title: string, creatorId: number) {
     try {
       const result = await db.execute({
-        sql: "UPDATE games SET title = ? WHERE id = ? AND creator_id = ?",
-        args: [title, id, creatorId],
+        sql: "UPDATE games SET title = ? WHERE id = ?",
+        args: [title, id],
       });
       return result;
     } catch (error) {
@@ -377,8 +377,8 @@ export const queries = {
   async deleteGame(id: number, creatorId: number) {
     try {
       const result = await db.execute({
-        sql: "DELETE FROM games WHERE id = ? AND creator_id = ?",
-        args: [id, creatorId],
+        sql: "DELETE FROM games WHERE id = ?",
+        args: [id],
       });
       return result;
     } catch (error) {

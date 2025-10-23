@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { MoreVertical, Edit, Trash2, BarChart3 } from "lucide-react";
+import { MoreVertical, Edit, Trash2, BarChart3, Trophy } from "lucide-react";
 import { GameEditDialog } from "@/components/game-edit-dialog";
 import { DeleteConfirmationDialog } from "@/components/delete-confirmation-dialog";
 
@@ -150,6 +150,12 @@ export function GameCard({
                 >
                   <Trash2 className="mr-2 h-4 w-4" />
                   Delete Game
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href={`/admin/games/${id}/leaderboard`}>
+                    <Trophy className="mr-2 h-4 w-4" />
+                    View Leaderboard
+                  </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
                   <Link href={`/games/${id}`}>
