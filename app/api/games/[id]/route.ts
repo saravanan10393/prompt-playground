@@ -79,26 +79,26 @@ export async function PATCH(
     const body = await request.json();
     const { title, scenarios } = body;
     
-    if (!title || !scenarios || !Array.isArray(scenarios) || scenarios.length !== 3) {
+    if (!title || !scenarios || !Array.isArray(scenarios) || scenarios.length < 1 || scenarios.length > 10) {
       return NextResponse.json(
-        { error: "Invalid request. Title and 3 scenarios required." },
+        { error: "Invalid request. Title and 1-10 scenarios required." },
         { status: 400 }
       );
     }
     
     // Validate scenarios
     for (const scenario of scenarios) {
-      if (!scenario.title || !scenario.description) {
+      if (!scenario.id || !scenario.title || !scenario.description) {
         return NextResponse.json(
-          { error: "Each scenario must have a title and description" },
+          { error: "Each scenario must have an id, title and description" },
           { status: 400 }
         );
       }
     }
     
     // Update game and scenarios
-    // Update game title (using creator_id from existing game)
-    await queries.updateGame(gameId, title, game.creator_id as number);
+    // Update game title
+    await queries.updateGame(gameId, title);
     
     // Update scenarios
     for (const scenario of scenarios) {
@@ -160,8 +160,7 @@ export async function DELETE(
     }
     
     // Delete the game (CASCADE will handle scenarios and submissions)
-    // Using the existing creator_id from the game
-    await queries.deleteGame(gameId, game.creator_id as number);
+    await queries.deleteGame(gameId);
     
     logger.apiResponse("DELETE", `/api/games/${id}`, 200, Date.now() - startTime, { gameId });
     

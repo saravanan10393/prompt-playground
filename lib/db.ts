@@ -322,18 +322,6 @@ export const queries = {
   },
 
   // Game edit/delete queries
-  async getGameByIdAndCreator(id: number, creatorId: number) {
-    try {
-      const result = await db.execute({
-        sql: "SELECT * FROM games WHERE id = ? AND creator_id = ?",
-        args: [id, creatorId],
-      });
-      return result.rows[0] || null;
-    } catch (error) {
-      console.error(`Failed to get game ${id} for creator ${creatorId}: ${error instanceof Error ? error.message : String(error)}`);
-      throw new Error(`Database error: Failed to retrieve game by id and creator`);
-    }
-  },
 
   async hasGameSubmissions(gameId: number) {
     try {
@@ -348,7 +336,7 @@ export const queries = {
     }
   },
 
-  async updateGame(id: number, title: string, creatorId: number) {
+  async updateGame(id: number, title: string) {
     try {
       const result = await db.execute({
         sql: "UPDATE games SET title = ? WHERE id = ?",
@@ -374,7 +362,7 @@ export const queries = {
     }
   },
 
-  async deleteGame(id: number, creatorId: number) {
+  async deleteGame(id: number) {
     try {
       const result = await db.execute({
         sql: "DELETE FROM games WHERE id = ?",
@@ -382,7 +370,7 @@ export const queries = {
       });
       return result;
     } catch (error) {
-      console.error(`Failed to delete game ${id} for creator ${creatorId}: ${error instanceof Error ? error.message : String(error)}`);
+      console.error(`Failed to delete game ${id}: ${error instanceof Error ? error.message : String(error)}`);
       throw new Error(`Database error: Failed to delete game`);
     }
   },

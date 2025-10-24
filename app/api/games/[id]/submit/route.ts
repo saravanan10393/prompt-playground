@@ -35,7 +35,7 @@ Additionally, provide a "refinedPrompt" field with an improved version of the us
 
 Provide your response in the following JSON format:
 {
-  "score": <number between 1-10>,
+  "score": <number between 1.0-10>,
   "feedback": "<detailed actionable suggestions to improve the prompt>",
   "refinedPrompt": "<an improved version of the user's prompt that demonstrates best practices>"
 }

@@ -25,7 +25,7 @@ interface GameEditDialogProps {
   isOpen: boolean;
   onClose: () => void;
   game: Game | null;
-  onSave: (gameId: number, title: string, scenarios: Omit<Scenario, "id">[]) => Promise<void>;
+  onSave: (gameId: number, title: string, scenarios: Scenario[]) => Promise<void>;
   hasSubmissions: boolean;
 }
 
@@ -38,22 +38,13 @@ export function GameEditDialog({
 }: GameEditDialogProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [gameTitle, setGameTitle] = useState("");
-  const [scenarios, setScenarios] = useState<Omit<Scenario, "id">[]>([
-    { title: "", description: "" },
-    { title: "", description: "" },
-    { title: "", description: "" },
-  ]);
+  const [scenarios, setScenarios] = useState<Scenario[]>([]);
 
   // Initialize form when game changes
   useEffect(() => {
     if (game) {
       setGameTitle(game.title);
-      setScenarios(
-        game.scenarios.map((s) => ({
-          title: s.title,
-          description: s.description,
-        }))
-      );
+      setScenarios(game.scenarios);
     }
   }, [game]);
 
@@ -126,7 +117,7 @@ export function GameEditDialog({
           <div className="space-y-4">
             <h3 className="text-lg font-semibold">Scenarios</h3>
             <p className="text-sm text-muted-foreground">
-              Update the 3 scenarios that participants will write prompts for.
+              Update the scenarios that participants will write prompts for.
             </p>
             
             {scenarios.map((scenario, index) => (

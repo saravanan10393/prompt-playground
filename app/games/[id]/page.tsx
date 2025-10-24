@@ -10,6 +10,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { saveGameResults } from "@/lib/storage";
 import { NameEntryDialog } from "@/components/name-entry-dialog";
 import { useAuth } from "@/components/auth-provider";
+import { SubmissionViewDialog } from "@/components/submission-view-dialog";
+import { Eye } from "lucide-react";
 
 interface Scenario {
   id: number;
@@ -63,6 +65,10 @@ export default function GamePage() {
   // Name confirmation state
   const [showNameEntry, setShowNameEntry] = useState(false);
   const [nameConfirmed, setNameConfirmed] = useState(false);
+  
+  // Dialog state
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [selectedUserToken, setSelectedUserToken] = useState<string | null>(null);
 
   useEffect(() => {
     fetchGame();
@@ -111,11 +117,12 @@ export default function GamePage() {
         setHasSubmitted(true);
         
         // Reconstruct evaluations from submissions
-        const evals = data.userSubmissions.map((sub: { scenario_id: number; prompt: string; score: number; feedback: string }) => ({
+        const evals = data.userSubmissions.map((sub: { scenario_id: number; prompt: string; score: number; feedback: string; refined_prompt: string }) => ({
           scenarioId: sub.scenario_id,
           prompt: sub.prompt,
           score: sub.score,
           feedback: sub.feedback,
+          refinedPrompt: sub.refined_prompt,
         }));
         
         setEvaluations(evals);
@@ -132,20 +139,6 @@ export default function GamePage() {
     setShowNameEntry(false);
   };
 
-  const handlePlayAgain = () => {
-    setHasSubmitted(false);
-    setEvaluations([]);
-    setTotalScore(0);
-    // Reset all prompts
-    if (game) {
-      setSubmissions(
-        game.scenarios.map((s) => ({
-          scenarioId: s.id,
-          prompt: "",
-        }))
-      );
-    }
-  };
 
   const updatePrompt = (scenarioId: number, prompt: string) => {
     setSubmissions((prev) =>
@@ -201,6 +194,16 @@ export default function GamePage() {
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const handleViewSubmissions = (userToken: string) => {
+    setSelectedUserToken(userToken);
+    setIsDialogOpen(true);
+  };
+
+  const handleCloseDialog = () => {
+    setIsDialogOpen(false);
+    setSelectedUserToken(null);
   };
 
   if (isLoading) {
@@ -272,9 +275,17 @@ export default function GamePage() {
                       <CardTitle className="text-2xl font-bold text-foreground leading-tight">
                         {scenario.title}
                       </CardTitle>
-                      <CardDescription className="text-base text-foreground/80 leading-relaxed">
-                        {scenario.description}
-                      </CardDescription>
+                      <CardDescription 
+                        className="text-base text-foreground/80 leading-relaxed break-words overflow-wrap-anywhere"
+                        dangerouslySetInnerHTML={{
+                          __html: scenario.description
+                            .replace(/\n/g, '<br>')
+                            .replace(
+                              /(https?:\/\/[^\s]+)/g,
+                              '<a href="$1" target="_blank" rel="noopener noreferrer" class="text-blue-500 hover:text-blue-400 underline decoration-blue-500/50 hover:decoration-blue-400 transition-colors">$1</a>'
+                            )
+                        }}
+                      />
                     </div>
                   </div>
                 </CardHeader>
@@ -334,9 +345,6 @@ export default function GamePage() {
               <p className="text-lg text-foreground/80 leading-relaxed">
                 Here&apos;s how your {game.scenarios.length === 1 ? 'prompt' : 'prompts'} performed
               </p>
-              <Button onClick={handlePlayAgain} variant="outline" size="lg" className="mt-4">
-                🔄 Play Again
-              </Button>
             </div>
 
             {/* Individual evaluation cards */}
@@ -459,15 +467,28 @@ export default function GamePage() {
                           </div>
                         </div>
                         
-                        {/* Score */}
-                        <div className="text-right">
-                          <p className="font-bold text-2xl gradient-text">
-                            {entry.total_score}
-                            <span className="text-sm text-muted-foreground font-normal">/{game.scenarios.length * 10}</span>
-                          </p>
-                          <p className="text-xs text-muted-foreground mt-1">
-                            {new Date(entry.last_submission).toLocaleDateString()} at {new Date(entry.last_submission).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                          </p>
+                        <div className="flex items-center gap-4">
+                          {/* Score */}
+                          <div className="text-right">
+                            <p className="font-bold text-2xl gradient-text">
+                              {entry.total_score}
+                              <span className="text-sm text-muted-foreground font-normal">/{game.scenarios.length * 10}</span>
+                            </p>
+                            <p className="text-xs text-muted-foreground mt-1">
+                              {new Date(entry.last_submission).toLocaleDateString()} at {new Date(entry.last_submission).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                            </p>
+                          </div>
+                          
+                          {/* View Button */}
+                          <Button
+                            onClick={() => handleViewSubmissions(entry.token)}
+                            variant="outline"
+                            size="sm"
+                            className="flex items-center gap-2"
+                          >
+                            <Eye className="h-4 w-4" />
+                            View
+                          </Button>
                         </div>
                       </div>
                     ))}
@@ -487,6 +508,16 @@ export default function GamePage() {
           currentName={user.name}
           onNameChange={updateUserName}
           onContinue={handleNameConfirmed}
+        />
+      )}
+      
+      {/* Submission View Dialog */}
+      {selectedUserToken && (
+        <SubmissionViewDialog
+          isOpen={isDialogOpen}
+          onClose={handleCloseDialog}
+          gameId={gameId}
+          userToken={selectedUserToken}
         />
       )}
       </div>

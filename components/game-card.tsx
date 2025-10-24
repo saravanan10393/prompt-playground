@@ -79,7 +79,7 @@ export function GameCard({
     }
   };
 
-  const handleSave = async (gameId: number, newTitle: string, newScenarios: Omit<Scenario, "id">[]) => {
+  const handleSave = async (gameId: number, newTitle: string, newScenarios: Scenario[]) => {
     const response = await fetch(`/api/games/${gameId}`, {
       method: "PATCH",
       headers: {

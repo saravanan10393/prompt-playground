@@ -4,7 +4,8 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Eye } from "lucide-react";
+import { SubmissionViewDialog } from "@/components/submission-view-dialog";
 
 interface Scenario {
   id: number;
@@ -37,6 +38,10 @@ export default function AdminLeaderboardPage() {
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  
+  // Dialog state
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [selectedUserToken, setSelectedUserToken] = useState<string | null>(null);
 
   useEffect(() => {
     fetchData();
@@ -68,6 +73,16 @@ export default function AdminLeaderboardPage() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleViewSubmissions = (userToken: string) => {
+    setSelectedUserToken(userToken);
+    setIsDialogOpen(true);
+  };
+
+  const handleCloseDialog = () => {
+    setIsDialogOpen(false);
+    setSelectedUserToken(null);
   };
 
   if (isLoading) {
@@ -149,11 +164,22 @@ export default function AdminLeaderboardPage() {
                       </div>
                       <span className="font-medium text-foreground">{entry.name}</span>
                     </div>
-                    <div className="text-right">
-                      <p className="font-semibold text-lg gradient-text">{entry.total_score}/{maxScore}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {new Date(entry.last_submission).toLocaleString()}
-                      </p>
+                    <div className="flex items-center gap-3">
+                      <div className="text-right">
+                        <p className="font-semibold text-lg gradient-text">{entry.total_score}/{maxScore}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {new Date(entry.last_submission).toLocaleString()}
+                        </p>
+                      </div>
+                      <Button
+                        onClick={() => handleViewSubmissions(entry.token)}
+                        variant="outline"
+                        size="sm"
+                        className="flex items-center gap-2"
+                      >
+                        <Eye className="h-4 w-4" />
+                        View
+                      </Button>
                     </div>
                   </div>
                 ))}
@@ -161,6 +187,16 @@ export default function AdminLeaderboardPage() {
             )}
           </CardContent>
         </Card>
+        
+        {/* Submission View Dialog */}
+        {selectedUserToken && (
+          <SubmissionViewDialog
+            isOpen={isDialogOpen}
+            onClose={handleCloseDialog}
+            gameId={gameId}
+            userToken={selectedUserToken}
+          />
+        )}
       </div>
     </div>
   );
