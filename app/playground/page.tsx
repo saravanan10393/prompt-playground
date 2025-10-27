@@ -299,9 +299,23 @@ export default function PlaygroundPage() {
     <div className="md:flex h-[calc(100vh-73px)]">
       {/* Left Panel - Configuration */}
       <div className="w-full md:w-96 glass md:border-r border-slate-500/20 p-6 overflow-y-auto h-full">
-        <p className="text-sm text-muted-foreground mb-4 leading-relaxed">
-          Experiment with different prompting strategies to see how they enhance your system prompts and improve AI responses.
-        </p>
+        {/* Eye-catching intro note */}
+        <div className="mb-6 p-4 rounded-xl bg-gradient-to-br from-orange-500/10 to-orange-600/5 border-2 border-orange-500/30 shadow-lg shadow-orange-500/10">
+          <div className="flex items-start gap-3">
+            <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center shadow-md">
+              <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 10V3L4 14h7v7l9-11h-7z" />
+              </svg>
+            </div>
+            <div className="flex-1">
+              <h3 className="text-sm font-bold text-orange-600 dark:text-orange-400 mb-1.5">How to use this playground</h3>
+              <p className="text-sm text-foreground/90 leading-relaxed">
+                Experiment with different <span className="font-semibold text-orange-600 dark:text-orange-400">prompting strategies</span> to see how they enhance your system prompts and improve AI responses.
+              </p>
+            </div>
+          </div>
+        </div>
+
         <h2 className="text-2xl font-bold mb-6 gradient-text">Configuration</h2>
 
         <div className="space-y-6">
@@ -474,10 +488,7 @@ export default function PlaygroundPage() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
                   </svg>
                 </div>
-                <h3 className="text-base md:text-xl font-semibold text-foreground">Start a conversation</h3>
-                <p className="text-xs md:text-base text-muted-foreground">
-                  Type a message below to begin testing your system prompt
-                </p>
+                <h3 className="text-base md:text-xl font-semibold text-foreground">Start a conversation to test your system prompt</h3>
               </div>
             </div>
           ) : (
@@ -511,7 +522,7 @@ export default function PlaygroundPage() {
 
         {/* Input Area */}
         <div className="border-t border-slate-500/20 p-3 md:p-4 glass">
-          <form onSubmit={handleSubmit} className="flex gap-2">
+          <form onSubmit={handleSubmit} className="flex gap-2 items-end">
             <Input
               value={input}
               onChange={(e) => {
@@ -520,9 +531,9 @@ export default function PlaygroundPage() {
               }}
               placeholder="Type your message..."
               disabled={isLoading}
-              className="flex-1"
+              className="flex-1 h-14 text-base"
             />
-            <Button type="submit" disabled={isLoading || !input.trim()}>
+            <Button type="submit" disabled={isLoading || !input.trim()} className="h-14">
               Send
             </Button>
           </form>

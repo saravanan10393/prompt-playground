@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Loader2, RotateCcw, Play, RefreshCw, Settings } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { Response } from "@/components/ai-elements/response";
 
 const THEMES = [
   "Any Theme",
@@ -370,9 +371,11 @@ export default function GamePage() {
                     </Badge>
                   </div>
                   <div className="bg-muted/50 p-6 rounded-xl border-2 border-orange-500/20">
-                    <div className="text-center space-y-3">
-                      <h3 className="text-2xl font-bold text-foreground">{gameState.taskName}</h3>
-                      <p className="text-muted-foreground text-lg leading-relaxed">{gameState.description}</p>
+                    <div className="space-y-3">
+                      <h3 className="text-center text-2xl font-bold text-foreground">{gameState.taskName}</h3>
+                      <Response className="text-muted-foreground text-lg leading-relaxed prose prose-lg max-w-none [&>*]:text-muted-foreground">
+                        {gameState.description}
+                      </Response>
                       <p className="text-sm text-muted-foreground">Write a prompt to accomplish this task</p>
                     </div>
                   </div>
@@ -449,7 +452,9 @@ export default function GamePage() {
               <CardContent>
                 <div className="bg-muted/50 p-6 rounded-xl text-center space-y-3">
                   <h3 className="text-2xl font-bold text-foreground">{gameState.taskName}</h3>
-                  <p className="text-muted-foreground text-lg leading-relaxed">{gameState.description}</p>
+                  <Response className="text-muted-foreground text-lg leading-relaxed prose prose-lg max-w-none [&>*]:text-muted-foreground">
+                    {gameState.description}
+                  </Response>
                 </div>
               </CardContent>
             </Card>
@@ -477,7 +482,9 @@ export default function GamePage() {
               </CardHeader>
               <CardContent>
                 <div className="bg-slate-500/5 p-4 rounded-xl border border-slate-500/20">
-                  <p className="text-lg leading-relaxed">{gameState.evaluation.feedback}</p>
+                  <Response className="text-lg leading-relaxed prose prose-lg max-w-none [&>*]:text-foreground/90">
+                    {gameState.evaluation.feedback}
+                  </Response>
                 </div>
               </CardContent>
             </Card>
@@ -490,8 +497,10 @@ export default function GamePage() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="bg-green-500/10 text-green-700 dark:text-green-300 p-4 rounded-xl font-mono text-sm border-2 border-green-500/30">
-                  {gameState.evaluation.refinedPrompt}
+                <div className="bg-green-500/10 p-4 rounded-xl border-2 border-green-500/30">
+                  <Response className="text-sm text-green-700 dark:text-green-300 prose prose-sm prose-green max-w-none [&>*]:text-green-700 dark:[&>*]:text-green-300">
+                    {gameState.evaluation.refinedPrompt}
+                  </Response>
                 </div>
               </CardContent>
             </Card>

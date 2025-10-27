@@ -14,6 +14,7 @@ export function Navbar() {
   const navItems = [
     { href: "/game", label: "Game" },
     { href: "/playground", label: "Playground" },
+    { href: "/strategies", label: "Strategies" },
   ];
 
   return (

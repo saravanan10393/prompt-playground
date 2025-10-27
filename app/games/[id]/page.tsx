@@ -12,6 +12,7 @@ import { NameEntryDialog } from "@/components/name-entry-dialog";
 import { useAuth } from "@/components/auth-provider";
 import { SubmissionViewDialog } from "@/components/submission-view-dialog";
 import { Eye } from "lucide-react";
+import { Response } from "@/components/ai-elements/response";
 
 interface Scenario {
   id: number;
@@ -394,9 +395,11 @@ export default function GamePage() {
                       <h4 className="text-base font-semibold text-foreground flex items-center gap-2">
                         <span className="text-slate-500">💬</span> Feedback & Suggestions
                       </h4>
-                      <p className="text-base text-foreground/80 leading-relaxed p-4 bg-slate-500/5 rounded-xl border border-slate-500/20">
-                        {evaluation.feedback}
-                      </p>
+                      <div className="text-base leading-relaxed p-4 bg-slate-500/5 rounded-xl border border-slate-500/20">
+                        <Response className="text-foreground/90 prose prose-sm max-w-none [&>*]:text-foreground/80">
+                          {evaluation.feedback}
+                        </Response>
+                      </div>
                     </div>
                     
                     {/* Refined Prompt */}
@@ -404,8 +407,10 @@ export default function GamePage() {
                       <h4 className="text-base font-semibold text-foreground flex items-center gap-2">
                         <span className="text-green-500">✨</span> Refined Prompt Example
                       </h4>
-                      <div className="bg-green-500/10 text-green-700 dark:text-green-300 p-4 rounded-xl font-mono text-sm border-2 border-green-500/30 leading-relaxed">
-                        {evaluation.refinedPrompt}
+                      <div className="bg-green-500/10 p-4 rounded-xl border-2 border-green-500/30">
+                        <Response className="text-sm text-green-700 dark:text-green-300 prose prose-sm prose-green max-w-none [&>*]:text-green-700 dark:[&>*]:text-green-300">
+                          {evaluation.refinedPrompt}
+                        </Response>
                       </div>
                     </div>
                   </CardContent>
