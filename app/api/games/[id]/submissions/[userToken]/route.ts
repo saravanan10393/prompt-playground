@@ -31,7 +31,7 @@ export async function GET(
     }
     
     // Get user's submissions for this game
-    const submissions = await queries.getSubmissionsByGameAndUser(gameId, user.id);
+    const submissions = await queries.getSubmissionsByGameAndUser(gameId, user.id as number);
     
     // Get game scenarios for context
     const scenarios = await queries.getScenariosByGameId(gameId);
@@ -47,7 +47,7 @@ export async function GET(
     }
     
     // Calculate total score
-    const totalScore = submissions.reduce((sum, sub) => sum + sub.score, 0);
+    const totalScore = submissions.reduce((sum, sub) => sum + (Number(sub.score) || 0), 0);
     
     // Organize submissions by scenario
     const submissionsWithScenarios = submissions.map(submission => {
@@ -58,7 +58,7 @@ export async function GET(
         scenario_description: scenario?.description || '',
         order_index: scenario?.order_index || 0
       };
-    }).sort((a, b) => a.order_index - b.order_index);
+    }).sort((a, b) => (Number(a.order_index) || 0) - (Number(b.order_index) || 0));
     
     logger.apiResponse("GET", `/api/games/${id}/submissions/${userToken}`, 200, Date.now() - startTime, { 
       gameId, 

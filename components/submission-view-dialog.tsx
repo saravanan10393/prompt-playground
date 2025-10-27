@@ -1,10 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Loader2 } from "lucide-react";
 
 interface Submission {
@@ -50,16 +48,10 @@ export function SubmissionViewDialog({
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (isOpen && gameId && userToken) {
-      fetchSubmissions();
-    }
-  }, [isOpen, gameId, userToken]);
-
-  const fetchSubmissions = async () => {
+  const fetchSubmissions = useCallback(async () => {
     setIsLoading(true);
     setError(null);
-    
+
     try {
       const response = await fetch(`/api/games/${gameId}/submissions/${userToken}`);
       
@@ -76,7 +68,13 @@ export function SubmissionViewDialog({
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [gameId, userToken]);
+
+  useEffect(() => {
+    if (isOpen && gameId && userToken) {
+      fetchSubmissions();
+    }
+  }, [isOpen, gameId, userToken, fetchSubmissions]);
 
   const handleClose = () => {
     setData(null);
@@ -121,7 +119,7 @@ export function SubmissionViewDialog({
 
             {/* Submissions */}
             <div className="space-y-4">
-              {data.submissions.map((submission, index) => (
+              {data.submissions.map((submission, _index) => (
                 <div key={submission.id} className="space-y-2">
                   <div className="text-sm font-medium text-foreground">
                     Prompt:

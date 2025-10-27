@@ -128,9 +128,9 @@ export function GameCard({
         <CardHeader>
           <div className="flex items-start justify-between">
             <div className="flex-1">
-              <CardTitle className="text-foreground group-hover:text-purple-400 transition-colors">{title}</CardTitle>
+              <CardTitle className="text-foreground group-hover:text-orange-500 transition-colors">{title}</CardTitle>
               <CardDescription className="text-muted-foreground">
-                Created by <span className="text-purple-400">{creator_name}</span> on {formattedDate}
+                Created by <span className="text-orange-500">{creator_name}</span> on {formattedDate}
               </CardDescription>
             </div>
             <DropdownMenu>
@@ -169,7 +169,7 @@ export function GameCard({
         </CardHeader>
         <CardContent>
           <Link href={`/games/${id}`}>
-            <Button className="w-full shadow-lg shadow-purple-500/30">Play Game</Button>
+            <Button className="w-full shadow-lg shadow-orange-500/30">Play Game</Button>
           </Link>
         </CardContent>
       </Card>

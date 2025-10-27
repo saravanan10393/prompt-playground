@@ -4,8 +4,9 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { ChevronDown, ChevronUp, RefreshCw, Check } from "lucide-react";
+import { Response } from "@/components/ai-elements/response";
 
 interface SystemPromptRefinerProps {
   originalPrompt: string;
@@ -18,7 +19,7 @@ interface SystemPromptRefinerProps {
 }
 
 export function SystemPromptRefiner({
-  originalPrompt,
+  originalPrompt: _originalPrompt,
   refinedPrompt,
   strategy,
   isRefining,
@@ -28,11 +29,11 @@ export function SystemPromptRefiner({
 }: SystemPromptRefinerProps) {
   const [isExpanded, setIsExpanded] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
-  const [editedRefined, setEditedRefined] = useState(refinedPrompt);
+  const [editedRefined, setEditedRefined] = useState(refinedPrompt || "");
 
   const handleEdit = () => {
     setIsEditing(true);
-    setEditedRefined(refinedPrompt);
+    setEditedRefined(refinedPrompt || "");
   };
 
   const handleSave = () => {
@@ -41,11 +42,11 @@ export function SystemPromptRefiner({
   };
 
   const handleCancel = () => {
-    setEditedRefined(refinedPrompt);
+    setEditedRefined(refinedPrompt || "");
     setIsEditing(false);
   };
 
-  const hasRefinedContent = refinedPrompt.trim().length > 0;
+  const hasRefinedContent = (refinedPrompt || "").trim().length > 0;
 
   return (
     <Card className="border-2 border-dashed border-muted-foreground/25">
@@ -131,8 +132,8 @@ export function SystemPromptRefiner({
                     </div>
                   </div>
                 ) : (
-                  <div className="p-3 bg-muted rounded font-mono text-sm whitespace-pre-wrap">
-                    {refinedPrompt}
+                  <div className="p-3 bg-muted rounded font-mono text-sm">
+                    <Response>{refinedPrompt}</Response>
                   </div>
                 )}
               </div>

@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { queries } from "@/lib/db";
 import { getUserFromRequest } from "@/lib/auth";
-import { getOpenAIClient } from "@/lib/openai";
+import { callLLMWithRetry } from "@/lib/openai";
 import { logger } from "@/lib/logger";
 
 interface SubmissionData {
@@ -51,21 +51,14 @@ ${userPrompt}
 
 Please evaluate this prompt and provide a score (1-10) and detailed feedback.`;
 
-    const openai = getOpenAIClient();
-    const response = await openai.chat.completions.create({
-      model: "gpt-4.1",
+    const content = await callLLMWithRetry({
       messages: [
         { role: "system", content: systemPrompt },
         { role: "user", content: userMessage },
       ],
-      response_format: { type: "json_object" },
+      responseFormat: { type: "json_object" },
       temperature: 0.2,
     });
-
-    const content = response.choices[0].message.content;
-    if (!content) {
-      throw new Error("No response from OpenAI");
-    }
 
     const result = JSON.parse(content);
     
@@ -76,10 +69,23 @@ Please evaluate this prompt and provide a score (1-10) and detailed feedback.`;
     };
   } catch (error) {
     console.error("Error evaluating prompt:", error);
+
+    const errorMessage = error instanceof Error ? error.message : "Unknown error";
+    let feedback = "Error evaluating prompt. Please try again.";
+
+    // Handle specific error types
+    if (errorMessage.includes("API key") || errorMessage.includes("api key")) {
+      feedback = "API configuration error. Please contact support.";
+    } else if (errorMessage.includes("rate limit") || errorMessage.includes("429")) {
+      feedback = "Rate limit exceeded. Please wait and try again.";
+    } else if (errorMessage.includes("timeout")) {
+      feedback = "Request timed out. Please try again.";
+    }
+
     // Return a default response on error
     return {
       score: 5,
-      feedback: "Error evaluating prompt. Please try again.",
+      feedback,
       refinedPrompt: "Unable to generate refined prompt due to error.",
     };
   }
@@ -222,8 +228,26 @@ export async function POST(
     });
   } catch (error) {
     logger.apiError("POST", `/api/games/${id}/submit`, error);
+
+    const errorMessage = error instanceof Error ? error.message : "Unknown error";
+    let userMessage = "Failed to submit prompts. Please try again.";
+
+    // Handle specific error types
+    if (errorMessage.includes("API key") || errorMessage.includes("api key")) {
+      userMessage = "API configuration error. Please contact support.";
+    } else if (errorMessage.includes("rate limit") || errorMessage.includes("429")) {
+      userMessage = "Rate limit exceeded. Please wait a moment and try again.";
+    } else if (errorMessage.includes("timeout")) {
+      userMessage = "Request timed out. Please try again.";
+    } else if (errorMessage.includes("network")) {
+      userMessage = "Network error. Please check your connection and try again.";
+    }
+
     return NextResponse.json(
-      { error: "Failed to submit prompts" },
+      {
+        error: userMessage,
+        details: process.env.NODE_ENV === "development" ? errorMessage : undefined
+      },
       { status: 500 }
     );
   }

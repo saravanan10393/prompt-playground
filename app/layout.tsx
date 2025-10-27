@@ -3,7 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/components/auth-provider";
 import { ThemeProvider } from "@/components/theme-provider";
-import { ThemeToggle } from "@/components/theme-toggle";
+import { Navbar } from "@/components/navbar";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 
 const geistSans = Geist({
@@ -34,11 +34,8 @@ export default function RootLayout({
         <SpeedInsights/>
         <ThemeProvider>
           <AuthProvider>
-            {/* Theme Toggle - Fixed position in top-right corner */}
-            <div className="fixed top-4 right-4 z-50">
-              <ThemeToggle />
-            </div>
-            <main className="min-h-screen">
+            <Navbar />
+            <main className="pt-16">
               {children}
             </main>
           </AuthProvider>

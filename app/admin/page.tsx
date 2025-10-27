@@ -100,9 +100,9 @@ export default function AdminPage() {
       if (!response.ok) {
         throw new Error("Failed to create game");
       }
-      
-      const data = await response.json();
-      
+
+      await response.json();
+
       // Reset form
       setGameTitle("");
       setScenarios([{ title: "", description: "" }]);
@@ -130,7 +130,7 @@ export default function AdminPage() {
   return (
     <div className="relative min-h-screen">
       {/* Background gradient */}
-      <div className="absolute inset-0 bg-gradient-to-br from-purple-900/10 via-transparent to-blue-900/10 pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-br from-slate-900/8 via-transparent to-slate-800/8 pointer-events-none" />
       
       <div className="container mx-auto px-4 py-8 max-w-6xl relative">
         <div className="mb-8 flex items-center justify-between">
@@ -240,7 +240,7 @@ export default function AdminPage() {
                 <CardContent>
                   {isLoadingGames ? (
                     <div className="text-center py-12">
-                      <div className="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500"></div>
+                      <div className="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-orange-500"></div>
                       <p className="text-muted-foreground mt-4">Loading games...</p>
                     </div>
                   ) : games.length === 0 ? (

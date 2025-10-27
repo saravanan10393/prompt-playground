@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -64,30 +64,18 @@ export default function GamePage() {
   
   // Name confirmation state
   const [showNameEntry, setShowNameEntry] = useState(false);
-  const [nameConfirmed, setNameConfirmed] = useState(false);
-  
+  const [, setNameConfirmed] = useState(false);
+
   // Dialog state
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedUserToken, setSelectedUserToken] = useState<string | null>(null);
 
-  useEffect(() => {
-    fetchGame();
-    fetchResults();
-    
-    // Check if name has been confirmed
-    const confirmed = localStorage.getItem('name_confirmed');
-    setNameConfirmed(!!confirmed);
-    if (!confirmed) {
-      setShowNameEntry(true);
-    }
-  }, [gameId]);
-
-  const fetchGame = async () => {
+  const fetchGame = useCallback(async () => {
     try {
       const response = await fetch(`/api/games/${gameId}`);
       const data = await response.json();
       setGame(data.game);
-      
+
       // Initialize submissions array
       if (data.game.scenarios) {
         setSubmissions(
@@ -102,20 +90,20 @@ export default function GamePage() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [gameId]);
 
-  const fetchResults = async () => {
+  const fetchResults = useCallback(async () => {
     try {
       const response = await fetch(`/api/games/${gameId}/results`);
       const data = await response.json();
-      
+
       if (data.leaderboard) {
         setLeaderboard(data.leaderboard);
       }
-      
+
       if (data.userSubmissions && data.userSubmissions.length > 0) {
         setHasSubmitted(true);
-        
+
         // Reconstruct evaluations from submissions
         const evals = data.userSubmissions.map((sub: { scenario_id: number; prompt: string; score: number; feedback: string; refined_prompt: string }) => ({
           scenarioId: sub.scenario_id,
@@ -124,14 +112,26 @@ export default function GamePage() {
           feedback: sub.feedback,
           refinedPrompt: sub.refined_prompt,
         }));
-        
+
         setEvaluations(evals);
         setTotalScore(evals.reduce((sum: number, e: Evaluation) => sum + e.score, 0));
       }
     } catch (error) {
       console.error("Error fetching results:", error);
     }
-  };
+  }, [gameId]);
+
+  useEffect(() => {
+    fetchGame();
+    fetchResults();
+
+    // Check if name has been confirmed
+    const confirmed = localStorage.getItem('name_confirmed');
+    setNameConfirmed(!!confirmed);
+    if (!confirmed) {
+      setShowNameEntry(true);
+    }
+  }, [fetchGame, fetchResults]);
 
   const handleNameConfirmed = () => {
     localStorage.setItem('name_confirmed', 'true');
@@ -210,7 +210,7 @@ export default function GamePage() {
     return (
       <div className="container mx-auto px-4 py-8 flex items-center justify-center min-h-screen">
         <div className="text-center">
-          <div className="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500 mb-4"></div>
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-orange-500 mb-4"></div>
           <p className="text-muted-foreground">Loading game...</p>
         </div>
       </div>
@@ -238,13 +238,13 @@ export default function GamePage() {
 
   return (
     <div className="relative min-h-screen">
-      <div className="absolute inset-0 bg-gradient-to-br from-purple-900/10 via-transparent to-blue-900/10 pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-br from-slate-900/8 via-transparent to-slate-800/8 pointer-events-none" />
       
       <div className={`container mx-auto px-4 py-8 ${getMaxWidth()} relative`}>
         <div className="mb-12 text-center">
           <h1 className="text-5xl font-bold mb-3 gradient-text leading-tight">{game.title}</h1>
-          {/* <p className="text-gray-400">Created by <span className="text-purple-400">{game.creator_name}</span></p> */}
-          <div className="w-24 h-1 mx-auto mt-4 bg-gradient-to-r from-purple-500 to-blue-500 rounded-full"></div>
+          {/* <p className="text-gray-400">Created by <span className="text-orange-500">{game.creator_name}</span></p> */}
+          <div className="w-24 h-1 mx-auto mt-4 bg-gradient-to-r from-slate-600 to-orange-500 rounded-full"></div>
         </div>
 
       {!hasSubmitted ? (
@@ -267,7 +267,7 @@ export default function GamePage() {
                 <CardHeader className="pb-4 space-y-4">
                   <div className="flex items-start gap-4">
                     {/* Numbered badge */}
-                    <div className="flex-shrink-0 w-14 h-14 rounded-xl bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center shadow-lg">
+                    <div className="flex-shrink-0 w-14 h-14 rounded-xl bg-gradient-to-br from-slate-600 to-orange-500 flex items-center justify-center shadow-lg">
                       <span className="text-2xl font-bold text-white">#{index + 1}</span>
                     </div>
                     
@@ -282,7 +282,7 @@ export default function GamePage() {
                             .replace(/\n/g, '<br>')
                             .replace(
                               /(https?:\/\/[^\s]+)/g,
-                              '<a href="$1" target="_blank" rel="noopener noreferrer" class="text-blue-500 hover:text-blue-400 underline decoration-blue-500/50 hover:decoration-blue-400 transition-colors">$1</a>'
+                              '<a href="$1" target="_blank" rel="noopener noreferrer" class="text-slate-500 hover:text-orange-400 underline decoration-orange-500/50 hover:decoration-orange-400 transition-colors">$1</a>'
                             )
                         }}
                       />
@@ -297,7 +297,7 @@ export default function GamePage() {
                     onChange={(e) => updatePrompt(scenario.id, e.target.value)}
                     rows={6}
                     disabled={isSubmitting}
-                    className="text-xl md:text-xl leading-relaxed resize-y border-2 focus:border-purple-500/50 min-h-[140px] placeholder:text-xl"
+                    className="text-xl md:text-xl leading-relaxed resize-y border-2 focus:border-orange-500/50 min-h-[140px] placeholder:text-xl"
                   />
                   <p className="text-sm text-muted-foreground">
                     💡 Tip: Think about clarity, specificity, and desired outcomes when crafting your prompt.
@@ -336,7 +336,7 @@ export default function GamePage() {
           <TabsContent value="results" className="space-y-6">
             {/* Score header */}
             <div className="text-center space-y-4 p-8 glass-card rounded-2xl">
-              <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 shadow-xl mb-2">
+              <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-slate-600 to-orange-500 shadow-xl mb-2">
                 <span className="text-3xl font-bold text-white">{totalScore}</span>
               </div>
               <h2 className="text-3xl font-bold gradient-text">
@@ -348,16 +348,16 @@ export default function GamePage() {
             </div>
 
             {/* Individual evaluation cards */}
-            {evaluations.map((evaluation, index) => {
+            {evaluations.map((evaluation, _index) => {
               const scenario = game.scenarios.find((s) => s.id === evaluation.scenarioId);
               const scenarioIndex = game.scenarios.findIndex((s) => s.id === evaluation.scenarioId);
               return (
                 <Card key={evaluation.scenarioId} className="overflow-hidden border-2">
-                  <CardHeader className="pb-4 space-y-4 bg-gradient-to-r from-purple-500/5 to-blue-500/5">
+                  <CardHeader className="pb-4 space-y-4 bg-gradient-to-r from-slate-500/5 to-orange-500/5">
                     <div className="flex items-start justify-between gap-4">
                       <div className="flex items-start gap-4 flex-1">
                         {/* Numbered badge */}
-                        <div className="flex-shrink-0 w-14 h-14 rounded-xl bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center shadow-lg">
+                        <div className="flex-shrink-0 w-14 h-14 rounded-xl bg-gradient-to-br from-slate-600 to-orange-500 flex items-center justify-center shadow-lg">
                           <span className="text-2xl font-bold text-white">#{scenarioIndex + 1}</span>
                         </div>
                         
@@ -382,9 +382,9 @@ export default function GamePage() {
                     {/* Your Prompt */}
                     <div className="space-y-3">
                       <h4 className="text-base font-semibold text-foreground flex items-center gap-2">
-                        <span className="text-purple-500">📝</span> Your Prompt
+                        <span className="text-orange-500">📝</span> Your Prompt
                       </h4>
-                      <div className="bg-muted/80 text-foreground p-4 rounded-xl font-mono text-sm border-2 border-purple-500/20 leading-relaxed">
+                      <div className="bg-muted/80 text-foreground p-4 rounded-xl font-mono text-sm border-2 border-orange-500/20 leading-relaxed">
                         {evaluation.prompt}
                       </div>
                     </div>
@@ -392,9 +392,9 @@ export default function GamePage() {
                     {/* Feedback */}
                     <div className="space-y-3">
                       <h4 className="text-base font-semibold text-foreground flex items-center gap-2">
-                        <span className="text-blue-500">💬</span> Feedback & Suggestions
+                        <span className="text-slate-500">💬</span> Feedback & Suggestions
                       </h4>
-                      <p className="text-base text-foreground/80 leading-relaxed p-4 bg-blue-500/5 rounded-xl border border-blue-500/20">
+                      <p className="text-base text-foreground/80 leading-relaxed p-4 bg-slate-500/5 rounded-xl border border-slate-500/20">
                         {evaluation.feedback}
                       </p>
                     </div>
@@ -416,7 +416,7 @@ export default function GamePage() {
           
           <TabsContent value="leaderboard">
             <Card className="overflow-hidden border-2">
-              <CardHeader className="space-y-2 bg-gradient-to-r from-purple-500/5 to-blue-500/5">
+              <CardHeader className="space-y-2 bg-gradient-to-r from-slate-500/5 to-orange-500/5">
                 <CardTitle className="text-3xl font-bold gradient-text">
                   🏆 Leaderboard
                 </CardTitle>
@@ -440,7 +440,7 @@ export default function GamePage() {
                     {leaderboard.map((entry, index) => (
                       <div
                         key={entry.token}
-                        className="flex items-center justify-between p-5 glass-card rounded-xl hover-lift border-2 border-transparent hover:border-purple-500/30 transition-all"
+                        className="flex items-center justify-between p-5 glass-card rounded-xl hover-lift border-2 border-transparent hover:border-orange-500/30 transition-all"
                       >
                         <div className="flex items-center gap-4 flex-1">
                           {/* Rank badge */}
@@ -451,7 +451,7 @@ export default function GamePage() {
                               ? 'bg-gradient-to-br from-gray-300 to-gray-500 text-white'
                               : index === 2
                               ? 'bg-gradient-to-br from-orange-400 to-orange-600 text-white'
-                              : 'bg-gradient-to-br from-purple-500 to-blue-500 text-white'
+                              : 'bg-gradient-to-br from-slate-600 to-orange-500 text-white'
                           }`}>
                             <span className="text-xl">#{index + 1}</span>
                           </div>

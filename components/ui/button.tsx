@@ -5,20 +5,20 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-medium transition-all cursor-pointer disabled:cursor-not-allowed disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:ring-purple-500/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 aria-invalid:border-destructive",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-medium transition-all cursor-pointer disabled:cursor-not-allowed disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:ring-orange-500/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 aria-invalid:border-destructive",
   {
     variants: {
       variant: {
-        default: "bg-gradient-to-r from-purple-600 to-blue-600 text-white hover:from-purple-500 hover:to-blue-500 hover:shadow-lg hover:shadow-purple-500/50 active:scale-95",
+        default: "bg-gradient-to-r from-slate-600 to-slate-700 text-white hover:from-orange-500 hover:to-orange-600 hover:shadow-lg hover:shadow-orange-500/50 active:scale-95",
         destructive:
           "bg-destructive text-white hover:bg-destructive/90 focus-visible:ring-destructive/20 hover:shadow-lg hover:shadow-red-500/50 active:scale-95",
         outline:
-          "border-2 border-purple-500/40 bg-transparent hover:bg-purple-500/10 hover:border-purple-500/60 text-foreground backdrop-blur-sm active:scale-95 dark:border-purple-500/30 dark:text-gray-200",
+          "border-2 border-slate-500/40 bg-transparent hover:bg-orange-500/10 hover:border-orange-500/60 text-foreground backdrop-blur-sm active:scale-95 dark:border-slate-500/30 dark:text-gray-200",
         secondary:
           "bg-secondary text-secondary-foreground hover:bg-secondary/80 border border-border active:scale-95",
         ghost:
-          "hover:bg-purple-500/10 hover:text-purple-400 active:scale-95",
-        link: "text-purple-500 underline-offset-4 hover:underline hover:text-purple-600 dark:text-purple-400 dark:hover:text-purple-300",
+          "hover:bg-orange-500/10 hover:text-orange-500 active:scale-95",
+        link: "text-orange-500 underline-offset-4 hover:underline hover:text-orange-600 dark:text-orange-400 dark:hover:text-orange-300",
       },
       size: {
         default: "h-10 px-4 py-2 has-[>svg]:px-3",

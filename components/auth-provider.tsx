@@ -50,7 +50,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           const data = await response.json();
           Cookies.set(USER_TOKEN_KEY, data.token, { expires: 365 });
           setUser(data.user);
-          setShowNameEntry(true); // Show name entry for new users
+          // setShowNameEntry(true); // Commented out - no longer auto-prompt for new users
         }
       } else {
         // Check existing user
@@ -59,9 +59,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           const data = await response.json();
           setUser(data.user);
           // Show name entry if name looks auto-generated
-          if (data.user.name.includes("_") && data.user.name.length > 10) {
-            setShowNameEntry(true);
-          }
+          // if (data.user.name.includes("_") && data.user.name.length > 10) {
+          //   setShowNameEntry(true);
+          // }
         } else {
           // Token invalid, create new user
           const response = await fetch("/api/auth", {
@@ -76,7 +76,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             const data = await response.json();
             Cookies.set(USER_TOKEN_KEY, data.token, { expires: 365 });
             setUser(data.user);
-            setShowNameEntry(true);
+            // setShowNameEntry(true); // Commented out - no longer auto-prompt when token invalid
           }
         }
       }

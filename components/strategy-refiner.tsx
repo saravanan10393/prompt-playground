@@ -4,6 +4,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Response } from "@/components/ai-elements/response";
 
 interface StrategyRefinerProps {
   isOpen: boolean;
@@ -53,12 +54,9 @@ export function StrategyRefiner({
           
           <div>
             <h4 className="font-medium mb-2">Refined Prompt</h4>
-            <Textarea
-              value={refined}
-              readOnly
-              rows={8}
-              className="bg-muted font-mono text-sm"
-            />
+            <div className="bg-muted font-mono text-sm rounded-md p-3 min-h-[12rem] overflow-auto">
+              <Response>{refined}</Response>
+            </div>
           </div>
           
           <div className="flex gap-2 justify-end">

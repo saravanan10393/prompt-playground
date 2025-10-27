@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -43,15 +43,11 @@ export default function AdminLeaderboardPage() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedUserToken, setSelectedUserToken] = useState<string | null>(null);
 
-  useEffect(() => {
-    fetchData();
-  }, [gameId]);
-
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
       setIsLoading(true);
       setError(null);
-      
+
       // Fetch game details
       const gameResponse = await fetch(`/api/games/${gameId}`);
       if (!gameResponse.ok) {
@@ -59,7 +55,7 @@ export default function AdminLeaderboardPage() {
       }
       const gameData = await gameResponse.json();
       setGame(gameData.game);
-      
+
       // Fetch leaderboard
       const resultsResponse = await fetch(`/api/games/${gameId}/results`);
       if (!resultsResponse.ok) {
@@ -73,7 +69,11 @@ export default function AdminLeaderboardPage() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [gameId]);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
   const handleViewSubmissions = (userToken: string) => {
     setSelectedUserToken(userToken);
@@ -88,10 +88,10 @@ export default function AdminLeaderboardPage() {
   if (isLoading) {
     return (
       <div className="relative min-h-screen">
-        <div className="absolute inset-0 bg-gradient-to-br from-purple-900/10 via-transparent to-blue-900/10 pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-br from-slate-900/8 via-transparent to-slate-800/8 pointer-events-none" />
         <div className="container mx-auto px-4 py-8 flex items-center justify-center min-h-screen relative">
           <div className="text-center">
-            <div className="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500 mb-4"></div>
+            <div className="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-orange-500 mb-4"></div>
             <p className="text-muted-foreground">Loading leaderboard...</p>
           </div>
         </div>
@@ -102,7 +102,7 @@ export default function AdminLeaderboardPage() {
   if (error || !game) {
     return (
       <div className="relative min-h-screen">
-        <div className="absolute inset-0 bg-gradient-to-br from-purple-900/10 via-transparent to-blue-900/10 pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-br from-slate-900/8 via-transparent to-slate-800/8 pointer-events-none" />
         <div className="container mx-auto px-4 py-8 flex items-center justify-center min-h-screen relative">
           <div className="glass-card p-12 rounded-2xl text-center">
             <p className="text-xl text-foreground mb-4">{error || "Game not found"}</p>
@@ -120,7 +120,7 @@ export default function AdminLeaderboardPage() {
 
   return (
     <div className="relative min-h-screen">
-      <div className="absolute inset-0 bg-gradient-to-br from-purple-900/10 via-transparent to-blue-900/10 pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-br from-slate-900/8 via-transparent to-slate-800/8 pointer-events-none" />
       
       <div className="container mx-auto px-4 py-8 max-w-4xl relative">
         <div className="mb-8">
@@ -159,7 +159,7 @@ export default function AdminLeaderboardPage() {
                     className="flex items-center justify-between p-4 glass-card rounded-xl hover-lift"
                   >
                     <div className="flex items-center gap-3">
-                      <div className={`w-10 h-10 rounded-lg flex items-center justify-center font-bold ${index < 3 ? 'bg-gradient-to-br from-purple-500 to-blue-500 text-white' : 'bg-muted text-foreground'}`}>
+                      <div className={`w-10 h-10 rounded-lg flex items-center justify-center font-bold ${index < 3 ? 'bg-gradient-to-br from-slate-600 to-orange-500 text-white' : 'bg-muted text-foreground'}`}>
                         #{index + 1}
                       </div>
                       <span className="font-medium text-foreground">{entry.name}</span>
