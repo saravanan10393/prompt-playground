@@ -1,5 +1,6 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { callLLMWithRetry } from "@/lib/openai";
+import { withRateLimit } from "@/lib/middleware/rate-limit-middleware";
 
 async function evaluatePrompt(
   scenario: string,
@@ -72,7 +73,7 @@ Please evaluate this prompt and provide a score (1-10) and detailed feedback.`;
   }
 }
 
-export async function POST(request: NextRequest) {
+async function evaluateHandler(request: Request) {
   try {
     const { scenario, prompt } = await request.json();
     
@@ -114,3 +115,11 @@ export async function POST(request: NextRequest) {
     );
   }
 }
+
+// Apply rate limiting: 50 requests per minute, auth required
+export const POST = withRateLimit(evaluateHandler, {
+  maxRequests: 50,
+  windowMs: 60000,
+  requireAuth: true,
+  blockMessage: "Evaluation rate limit exceeded. Please wait before evaluating more prompts.",
+});

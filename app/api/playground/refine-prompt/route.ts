@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { callLLMWithRetry } from "@/lib/openai";
 import { logger } from "@/lib/logger";
+import { withRateLimit } from "@/lib/middleware/rate-limit-middleware";
 
 const STRATEGY_PROMPTS = {
   "zero-shot": `You are a prompt engineering expert. Transform the user's prompt into an effective zero-shot prompt.
@@ -215,7 +216,7 @@ Return your response in JSON format:
 }`,
 };
 
-export async function POST(request: Request) {
+async function refinePromptHandler(request: Request) {
   const startTime = Date.now();
   logger.apiRequest("POST", "/api/playground/refine-prompt");
   
@@ -297,4 +298,12 @@ export async function POST(request: Request) {
     );
   }
 }
+
+// Apply rate limiting: 50 requests per minute, auth required
+export const POST = withRateLimit(refinePromptHandler, {
+  maxRequests: 50,
+  windowMs: 60000,
+  requireAuth: true,
+  blockMessage: "Prompt refinement rate limit exceeded. Please wait before refining more prompts.",
+});
 

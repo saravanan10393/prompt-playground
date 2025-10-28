@@ -1,9 +1,10 @@
 import { getRandomizedModels, MODEL_POOL } from "@/lib/openai";
 import { logger } from "@/lib/logger";
+import { withRateLimit } from "@/lib/middleware/rate-limit-middleware";
 
 export const maxDuration = 30;
 
-export async function POST(request: Request) {
+async function chatHandler(request: Request) {
   const startTime = Date.now();
   console.log("[CHAT] Route called");
 
@@ -177,4 +178,12 @@ export async function POST(request: Request) {
     });
   }
 }
+
+// Apply rate limiting: 50 requests per minute, auth required
+export const POST = withRateLimit(chatHandler, {
+  maxRequests: 50,
+  windowMs: 60000,
+  requireAuth: true,
+  blockMessage: "Chat rate limit exceeded. Please wait before sending more messages.",
+});
 

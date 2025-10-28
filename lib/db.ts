@@ -1,25 +1,22 @@
-import { createClient, type Client, type ResultSet, type InStatement } from "@libsql/client";
+import { neon } from '@neondatabase/serverless';
 
 // Lazy initialization - client is created only when needed
-let tursoClient: Client | null = null;
+let neonClient: ReturnType<typeof neon> | null = null;
 let isInitialized = false;
 let initializationPromise: Promise<void> | null = null;
 
 // Get or create the database client
-function getRawClient(): Client {
+function getRawClient() {
   try {
-    if (!tursoClient) {
-      if (!process.env.prompt_playground_TURSO_DATABASE_URL) {
-        console.error("Database configuration error: TURSO_DATABASE_URL environment variable is not set");
-        throw new Error("Database configuration error: TURSO_DATABASE_URL is not set");
+    if (!neonClient) {
+      if (!process.env.prompt_playground_DATABASE_URL) {
+        console.error("Database configuration error: DATABASE_URL environment variable is not set");
+        throw new Error("Database configuration error: DATABASE_URL is not set");
       }
 
-      tursoClient = createClient({
-        url: process.env.prompt_playground_TURSO_DATABASE_URL,
-        authToken: process.env.prompt_playground_TURSO_AUTH_TOKEN,
-      });
+      neonClient = neon(process.env.prompt_playground_DATABASE_URL);
     }
-    return tursoClient;
+    return neonClient;
   } catch (error) {
     console.error(`Failed to create database client: ${error instanceof Error ? error.message : String(error)}`);
     throw new Error(`Database client initialization failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
@@ -34,47 +31,47 @@ async function initializeDatabase() {
 
   initializationPromise = (async () => {
     try {
-      const client = getRawClient();
+      const sql = getRawClient();
 
       // Users table
-      await client.execute(`
+      await sql`
         CREATE TABLE IF NOT EXISTS users (
-          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          id SERIAL PRIMARY KEY,
           token TEXT UNIQUE NOT NULL,
           name TEXT NOT NULL,
-          created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         );
-      `);
+      `;
 
       // Games table
-      await client.execute(`
+      await sql`
         CREATE TABLE IF NOT EXISTS games (
-          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          id SERIAL PRIMARY KEY,
           creator_id INTEGER NOT NULL,
           title TEXT NOT NULL,
           status TEXT DEFAULT 'active',
-          created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
           FOREIGN KEY (creator_id) REFERENCES users(id)
         );
-      `);
+      `;
 
       // Scenarios table
-      await client.execute(`
+      await sql`
         CREATE TABLE IF NOT EXISTS scenarios (
-          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          id SERIAL PRIMARY KEY,
           game_id INTEGER NOT NULL,
           title TEXT NOT NULL,
           description TEXT NOT NULL,
           order_index INTEGER NOT NULL,
-          created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
           FOREIGN KEY (game_id) REFERENCES games(id) ON DELETE CASCADE
         );
-      `);
+      `;
 
       // Submissions table
-      await client.execute(`
+      await sql`
         CREATE TABLE IF NOT EXISTS submissions (
-          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          id SERIAL PRIMARY KEY,
           game_id INTEGER NOT NULL,
           user_id INTEGER NOT NULL,
           scenario_id INTEGER NOT NULL,
@@ -82,30 +79,34 @@ async function initializeDatabase() {
           score INTEGER NOT NULL,
           feedback TEXT NOT NULL,
           refined_prompt TEXT,
-          created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
           FOREIGN KEY (game_id) REFERENCES games(id) ON DELETE CASCADE,
           FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
           FOREIGN KEY (scenario_id) REFERENCES scenarios(id) ON DELETE CASCADE,
           UNIQUE(game_id, user_id, scenario_id)
         );
-      `);
+      `;
+
+      // API Rate Limits table
+      await sql`
+        CREATE TABLE IF NOT EXISTS api_rate_limits (
+          id SERIAL PRIMARY KEY,
+          user_id INTEGER NOT NULL,
+          endpoint TEXT NOT NULL,
+          request_count INTEGER DEFAULT 1,
+          window_start TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+          FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+          UNIQUE(user_id, endpoint)
+        );
+      `;
 
       // Create indexes for better performance
-      await client.execute(`
-        CREATE INDEX IF NOT EXISTS idx_users_token ON users(token);
-      `);
-      await client.execute(`
-        CREATE INDEX IF NOT EXISTS idx_games_creator ON games(creator_id);
-      `);
-      await client.execute(`
-        CREATE INDEX IF NOT EXISTS idx_scenarios_game ON scenarios(game_id);
-      `);
-      await client.execute(`
-        CREATE INDEX IF NOT EXISTS idx_submissions_game_user ON submissions(game_id, user_id);
-      `);
-      await client.execute(`
-        CREATE INDEX IF NOT EXISTS idx_submissions_game ON submissions(game_id);
-      `);
+      await sql`CREATE INDEX IF NOT EXISTS idx_users_token ON users(token);`;
+      await sql`CREATE INDEX IF NOT EXISTS idx_games_creator ON games(creator_id);`;
+      await sql`CREATE INDEX IF NOT EXISTS idx_scenarios_game ON scenarios(game_id);`;
+      await sql`CREATE INDEX IF NOT EXISTS idx_submissions_game_user ON submissions(game_id, user_id);`;
+      await sql`CREATE INDEX IF NOT EXISTS idx_submissions_game ON submissions(game_id);`;
+      await sql`CREATE INDEX IF NOT EXISTS idx_rate_limits_user_endpoint ON api_rate_limits(user_id, endpoint);`;
 
       isInitialized = true;
       console.log("Database initialized successfully");
@@ -122,12 +123,28 @@ async function initializeDatabase() {
 // Auto-initializing database client wrapper
 // This wrapper automatically ensures the database is initialized before any query
 const db = {
-  async execute(stmt: InStatement): Promise<ResultSet> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  async execute(stmt: string | { sql: string; args?: any[] }): Promise<{ rows: any[] }> {
     try {
       if (!isInitialized) {
         await initializeDatabase();
       }
-      return await getRawClient().execute(stmt);
+
+      const sql = getRawClient();
+
+      // Handle different input formats
+      if (typeof stmt === 'string') {
+        // Direct SQL string - use sql.query() with no params
+        const result = await sql.query(stmt, []);
+        return { rows: Array.isArray(result) ? result : [] };
+      } else {
+        // Parameterized query object
+        const { sql: query, args = [] } = stmt;
+
+        // For Neon, use sql.query() method with placeholders ($1, $2, etc.)
+        const result = await sql.query(query, args);
+        return { rows: Array.isArray(result) ? result : [] };
+      }
     } catch (error) {
       console.error(`Database execute failed: ${error instanceof Error ? error.message : String(error)}`);
       throw new Error(`Database execution error: ${error instanceof Error ? error.message : 'Unknown error'}`);
@@ -141,7 +158,7 @@ export const queries = {
   async getUserByToken(token: string) {
     try {
       const result = await db.execute({
-        sql: "SELECT * FROM users WHERE token = ?",
+        sql: "SELECT * FROM users WHERE token = $1",
         args: [token],
       });
       return result.rows[0] || null;
@@ -154,7 +171,7 @@ export const queries = {
   async createUser(token: string, name: string) {
     try {
       const result = await db.execute({
-        sql: "INSERT INTO users (token, name) VALUES (?, ?)",
+        sql: "INSERT INTO users (token, name) VALUES ($1, $2) RETURNING id",
         args: [token, name],
       });
       return result;
@@ -184,7 +201,7 @@ export const queries = {
   async getGameById(id: number) {
     try {
       const result = await db.execute({
-        sql: "SELECT g.*, u.name as creator_name FROM games g JOIN users u ON g.creator_id = u.id WHERE g.id = ?",
+        sql: "SELECT g.*, u.name as creator_name FROM games g JOIN users u ON g.creator_id = u.id WHERE g.id = $1",
         args: [id],
       });
       return result.rows[0] || null;
@@ -197,7 +214,7 @@ export const queries = {
   async createGame(creatorId: number, title: string) {
     try {
       const result = await db.execute({
-        sql: "INSERT INTO games (creator_id, title) VALUES (?, ?)",
+        sql: "INSERT INTO games (creator_id, title) VALUES ($1, $2) RETURNING id",
         args: [creatorId, title],
       });
       return result;
@@ -211,7 +228,7 @@ export const queries = {
   async getScenariosByGameId(gameId: number) {
     try {
       const result = await db.execute({
-        sql: "SELECT * FROM scenarios WHERE game_id = ? ORDER BY order_index ASC",
+        sql: "SELECT * FROM scenarios WHERE game_id = $1 ORDER BY order_index ASC",
         args: [gameId],
       });
       return result.rows;
@@ -224,7 +241,7 @@ export const queries = {
   async createScenario(gameId: number, title: string, description: string, orderIndex: number) {
     try {
       const result = await db.execute({
-        sql: "INSERT INTO scenarios (game_id, title, description, order_index) VALUES (?, ?, ?, ?)",
+        sql: "INSERT INTO scenarios (game_id, title, description, order_index) VALUES ($1, $2, $3, $4) RETURNING id",
         args: [gameId, title, description, orderIndex],
       });
       return result;
@@ -238,7 +255,7 @@ export const queries = {
   async createSubmission(gameId: number, userId: number, scenarioId: number, prompt: string, score: number, feedback: string, refinedPrompt?: string) {
     try {
       const result = await db.execute({
-        sql: "INSERT INTO submissions (game_id, user_id, scenario_id, prompt, score, feedback, refined_prompt) VALUES (?, ?, ?, ?, ?, ?, ?)",
+        sql: "INSERT INTO submissions (game_id, user_id, scenario_id, prompt, score, feedback, refined_prompt) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id",
         args: [gameId, userId, scenarioId, prompt, score, feedback, refinedPrompt || null],
       });
       return result;
@@ -251,7 +268,7 @@ export const queries = {
   async getSubmissionsByGameAndUser(gameId: number, userId: number) {
     try {
       const result = await db.execute({
-        sql: "SELECT * FROM submissions WHERE game_id = ? AND user_id = ?",
+        sql: "SELECT * FROM submissions WHERE game_id = $1 AND user_id = $2",
         args: [gameId, userId],
       });
       return result.rows;
@@ -265,15 +282,15 @@ export const queries = {
     try {
       // First, get the total number of scenarios for this game
       const scenarioCountResult = await db.execute({
-        sql: "SELECT COUNT(*) as count FROM scenarios WHERE game_id = ?",
+        sql: "SELECT COUNT(*) as count FROM scenarios WHERE game_id = $1",
         args: [gameId],
       });
       const totalScenarios = scenarioCountResult.rows[0]?.count || 0;
-      
+
       // Then get the leaderboard for users who completed all scenarios
       const result = await db.execute({
         sql: `
-          SELECT 
+          SELECT
             u.name,
             u.token,
             SUM(s.score) as total_score,
@@ -281,9 +298,9 @@ export const queries = {
             MAX(s.created_at) as last_submission
           FROM submissions s
           JOIN users u ON s.user_id = u.id
-          WHERE s.game_id = ?
+          WHERE s.game_id = $1
           GROUP BY s.user_id
-          HAVING scenarios_completed = ?
+          HAVING scenarios_completed = $2
           ORDER BY total_score DESC, last_submission ASC
         `,
         args: [gameId, totalScenarios],
@@ -298,7 +315,7 @@ export const queries = {
   async getUserSubmissionExists(gameId: number, userId: number) {
     try {
       const result = await db.execute({
-        sql: "SELECT COUNT(*) as count FROM submissions WHERE game_id = ? AND user_id = ?",
+        sql: "SELECT COUNT(*) as count FROM submissions WHERE game_id = $1 AND user_id = $2",
         args: [gameId, userId],
       });
       return result.rows[0]?.count || 0;
@@ -311,7 +328,7 @@ export const queries = {
   async deleteUserSubmissions(gameId: number, userId: number) {
     try {
       const result = await db.execute({
-        sql: "DELETE FROM submissions WHERE game_id = ? AND user_id = ?",
+        sql: "DELETE FROM submissions WHERE game_id = $1 AND user_id = $2",
         args: [gameId, userId],
       });
       return result;
@@ -326,7 +343,7 @@ export const queries = {
   async hasGameSubmissions(gameId: number) {
     try {
       const result = await db.execute({
-        sql: "SELECT COUNT(*) as count FROM submissions WHERE game_id = ?",
+        sql: "SELECT COUNT(*) as count FROM submissions WHERE game_id = $1",
         args: [gameId],
       });
       return result.rows[0]?.count || 0;
@@ -339,7 +356,7 @@ export const queries = {
   async updateGame(id: number, title: string) {
     try {
       const result = await db.execute({
-        sql: "UPDATE games SET title = ? WHERE id = ?",
+        sql: "UPDATE games SET title = $1 WHERE id = $2",
         args: [title, id],
       });
       return result;
@@ -352,7 +369,7 @@ export const queries = {
   async updateScenario(id: number, title: string, description: string, gameId: number) {
     try {
       const result = await db.execute({
-        sql: "UPDATE scenarios SET title = ?, description = ? WHERE id = ? AND game_id = ?",
+        sql: "UPDATE scenarios SET title = $1, description = $2 WHERE id = $3 AND game_id = $4",
         args: [title, description, id, gameId],
       });
       return result;
@@ -365,7 +382,7 @@ export const queries = {
   async deleteGame(id: number) {
     try {
       const result = await db.execute({
-        sql: "DELETE FROM games WHERE id = ?",
+        sql: "DELETE FROM games WHERE id = $1",
         args: [id],
       });
       return result;
@@ -379,7 +396,7 @@ export const queries = {
   async updateUserName(id: number, name: string) {
     try {
       const result = await db.execute({
-        sql: "UPDATE users SET name = ? WHERE id = ?",
+        sql: "UPDATE users SET name = $1 WHERE id = $2",
         args: [name, id],
       });
       return result;

@@ -61,7 +61,7 @@ export async function POST(request: Request) {
     
     // Create game and scenarios in a transaction
     const gameResult = await queries.createGame(user.id, title);
-    const gameId = Number(gameResult.lastInsertRowid);
+    const gameId = Number(gameResult.rows[0].id);
     
     // Create scenarios
     for (const [index, scenario] of scenarios.entries()) {

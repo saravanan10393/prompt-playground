@@ -1,7 +1,8 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { callLLMWithRetry } from "@/lib/openai";
+import { withRateLimit } from "@/lib/middleware/rate-limit-middleware";
 
-export async function POST(request: NextRequest) {
+async function generateScenarioHandler(request: Request) {
   try {
     const { action, complexity = "medium", theme = "Any Theme" } = await request.json();
     
@@ -91,3 +92,11 @@ Step 3: Return the task and description in this format:
     );
   }
 }
+
+// Apply rate limiting: 50 requests per minute, auth required
+export const POST = withRateLimit(generateScenarioHandler, {
+  maxRequests: 50,
+  windowMs: 60000,
+  requireAuth: true,
+  blockMessage: "Scenario generation rate limit exceeded. Please wait before generating more scenarios.",
+});
