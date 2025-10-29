@@ -70,7 +70,7 @@ export default function GamePage() {
       const response = await fetch('/api/game/generate-scenario', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
+        body: JSON.stringify({
           action: 'generate',
           complexity: complexity || gameState.complexity,
           theme: gameState.theme === 'Custom Theme' ? gameState.customTheme : gameState.theme

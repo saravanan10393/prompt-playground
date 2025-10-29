@@ -84,7 +84,7 @@ export default function AdminPage() {
     }
     
     setIsSubmitting(true);
-    
+
     try {
       const response = await fetch("/api/games", {
         method: "POST",

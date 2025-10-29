@@ -57,10 +57,10 @@ export function GameCard({
       // Fetch game details
       const response = await fetch(`/api/games/${id}`);
       const data = await response.json();
-      
+
       if (response.ok) {
         setGame(data.game);
-        
+
         // Check if game has submissions
         const editCheckResponse = await fetch(`/api/games/${id}/check-editable`);
         const editData = await editCheckResponse.json();
@@ -101,7 +101,7 @@ export function GameCard({
 
   const handleDelete = async () => {
     setIsDeleting(true);
-    
+
     try {
       const response = await fetch(`/api/games/${id}`, {
         method: "DELETE",

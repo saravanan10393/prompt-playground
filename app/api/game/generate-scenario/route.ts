@@ -93,10 +93,11 @@ Step 3: Return the task and description in this format:
   }
 }
 
-// Apply rate limiting: 50 requests per minute, auth required
+// Apply rate limiting: 50 requests per 10 hours, auth required
+// CSRF validation handled by middleware.ts automatically
 export const POST = withRateLimit(generateScenarioHandler, {
   maxRequests: 50,
-  windowMs: 60000,
+  windowMs: 36000000,
   requireAuth: true,
   blockMessage: "Scenario generation rate limit exceeded. Please wait before generating more scenarios.",
 });

@@ -21,14 +21,14 @@ export function CodeExampleBlock({ code, title, category, language = "text" }: C
   };
 
   return (
-    <div className="rounded-xl border border-slate-600/30 overflow-hidden bg-[#22293a] shadow-lg">
+    <div className="rounded-xl border border-slate-600/30 overflow-hidden bg-[#22293a] shadow-lg w-full">
       {/* Header */}
       {(title || category) && (
-        <div className="flex items-center justify-between px-4 py-2 bg-[#2a3142] border-b border-slate-600/40">
-          <div className="flex items-center gap-2">
-            {title && <span className="text-sm font-semibold text-slate-50">{title}</span>}
+        <div className="flex items-center justify-between px-3 sm:px-4 py-2 bg-[#2a3142] border-b border-slate-600/40">
+          <div className="flex items-center gap-2 min-w-0 flex-1">
+            {title && <span className="text-xs sm:text-sm font-semibold text-slate-50 truncate">{title}</span>}
             {category && (
-              <span className="px-2 py-0.5 text-xs font-medium rounded bg-orange-500/20 text-orange-400 border border-orange-500/30">
+              <span className="px-2 py-0.5 text-xs font-medium rounded bg-orange-500/20 text-orange-400 border border-orange-500/30 flex-shrink-0">
                 {category}
               </span>
             )}
@@ -55,9 +55,9 @@ export function CodeExampleBlock({ code, title, category, language = "text" }: C
       )}
 
       {/* Code Block */}
-      <div className="p-4 overflow-x-auto bg-[#22293a]">
-        <pre className="text-sm leading-relaxed font-mono">
-          <code className={`language-${language} text-slate-100`}>
+      <div className="p-3 sm:p-4 overflow-x-auto bg-[#22293a] max-w-full">
+        <pre className="text-xs sm:text-sm leading-relaxed font-mono min-w-0">
+          <code className={`language-${language} text-slate-100 break-words whitespace-pre-wrap`}>
             {code}
           </code>
         </pre>

@@ -179,10 +179,11 @@ async function chatHandler(request: Request) {
   }
 }
 
-// Apply rate limiting: 50 requests per minute, auth required
+// Apply rate limiting: 50 requests per 10 hours, auth required
+// CSRF validation handled by middleware.ts automatically
 export const POST = withRateLimit(chatHandler, {
   maxRequests: 50,
-  windowMs: 60000,
+  windowMs: 36000000,
   requireAuth: true,
   blockMessage: "Chat rate limit exceeded. Please wait before sending more messages.",
 });

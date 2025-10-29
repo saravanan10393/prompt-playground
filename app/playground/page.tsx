@@ -210,7 +210,7 @@ export default function PlaygroundPage() {
     setRefinedUserPrompt("");
     setUseRefinedUser(false);
     setIsLoading(true);
-    
+
     try {
       const response = await fetch("/api/playground/chat", {
         method: "POST",
