@@ -2,13 +2,8 @@ import OpenAI from "openai";
 
 // Model pool - randomly select primary model from this pool for each LLM call
 export const MODEL_POOL = [
-  // 'openai/gpt-oss-120b',
-  // 'openai/gpt-oss-20b:free',
-  // 'openai/gpt-oss-20b',
-  'qwen/qwen3-30b-a3b-thinking-2507',
-  'tngtech/deepseek-r1t2-chimera:free',
-  'qwen/qwen3-235b-a22b:free',
-  'moonshotai/kimi-k2:free',
+  'openai/gpt-oss-120b:nitro',
+  'minimax/minimax-m2.1:nitro'
 ];
 
 // Legacy exports for backward compatibility (will be removed after migration)
